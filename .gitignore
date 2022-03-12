@@ -1,0 +1,13 @@
+# Mac useless file
+.DS_Store
+
+# Cache
+.pyc
+*.pyc
+**.pyc
+__pychae__
+__pychae__/**
+
+# Editor
+.vscode/
+.vscode/*

@@ -9,6 +9,12 @@ import numpy as np
 from scipy import interpolate as si
 
 
+
+def m_ex(index, n):
+        """ Index recursion for external points """
+        return index % n
+
+
 class Calc:
     def __init__(self, P, 
                  vehicle={'wf':1.22, 'wr':1.18}):
@@ -214,6 +220,10 @@ class Calc:
             length.append(length_cum)
         length = np.asarray(length)
         return length
+    
+    def SError(self, interval):
+        """ Calculate the error between prescribed interval and actual distance """
+        return self.Dis() - interval
         
     #################################
     # CURVATURE #####################
@@ -470,3 +480,52 @@ class Calc:
         Br_pos = np.hstack((Br_x.reshape(-1, 1), Br_y.reshape(-1, 1)))
 
         return Bl, Br, Bl_pos, Br_pos
+
+    def BoundExtern(self, opp):
+        """ This algorithm is applicable to the setting that the reference line is itself boundary, 
+        usually right boundary for that left is positive y direction. 
+        The `opp` here stands for the opposite """
+        print('- Processing Boundaries ...')
+        n_opp = opp.shape[0]
+        theta  = self.ThetaAtan()
+        Bl = []
+        Br = [0.0] * self.n  # right boundary is reference line
+        
+        # find the closet opposite point relative to every points of us
+        # direct searching is slow and with fault (the boundary point is not the point with smallest distance
+        # but the intersecting point on vertical line)
+        j_found = 0  # the index of that last chosen boundary point
+        dist_found = 0
+        for i in range(self.n):
+            min_line_dist = 9999
+            for j in range(j_found-50, j_found+50):
+                # distance of point (x0,y0) to line determined by (Px,Py) and theta: 
+                # |cos(theta)(Py - y0) - sin(theta)(Px) - x0|
+                dist  = np.linalg.norm(opp[m_ex(j, n_opp),:] - self.P[i,:])
+                line_dist = np.abs(np.cos(theta[i]+np.pi/2)*(self.P[i,1] - opp[m_ex(j, n_opp),1]) - \
+                    np.sin(theta[i]+np.pi/2)*(self.P[i,0] - opp[m_ex(j, n_opp),0]))
+                if line_dist < min_line_dist:
+                    min_line_dist = line_dist
+                    j_found = m_ex(j, n_opp)
+                    dist_found = dist
+            Bl.append(dist_found)
+        Bl = np.asarray(Bl)
+        Br = np.asarray(Br)
+        
+        # calculate absolute position
+        Bl_x = self.x - Bl * np.sin(theta)
+        Bl_y = self.y + Bl * np.cos(theta)
+        Br_x = self.x - Br * np.sin(theta)
+        Br_y = self.y + Br * np.cos(theta)
+        Bl_pos = np.hstack((Bl_x.reshape(-1, 1), Bl_y.reshape(-1, 1)))
+        Br_pos = np.hstack((Br_x.reshape(-1, 1), Br_y.reshape(-1, 1)))
+
+        return Bl, Br, Bl_pos, Br_pos
+        
+        
+            
+                
+            
+        
+        
+        
