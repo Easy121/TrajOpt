@@ -1,0 +1,39 @@
+# Copyright (C) 2021：
+# - Zijun Guo <guozijuneasy@163.com>
+# All Rights Reserved.
+
+
+##############################
+# Global Option ##############
+##############################
+
+# generate only centerline or include dynamics: ['centerline'] / ['dynamics']
+opt_type: 'centerline'
+
+# whether plot or not
+enable_plot: True
+
+##############################
+# Centerline Optimization ####
+##############################
+
+centerline_option:
+  # spline centerline or optimized: ['optimized'] / ['spline']
+  type: 'opt'
+  # [m] Distance between discrete points (approximate)
+  interval: 0.05
+  # alpha term in objective function: first derivative of curvature
+  a: 1.0
+  # beta term in objective function: second derivative of curvature, usually 0
+  b: 0.0
+  # gamma term in objective function: curvature itself
+  g: 2.0
+
+##############################
+# Vehicle Parameters #########
+##############################
+
+# copied from car.yaml, dimension in [m]
+vehicle:
+  wf:       1.22  # Front track width
+  wr:       1.18  # Rear track width

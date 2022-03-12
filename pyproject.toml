@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "opt"
+version = "0.1.0"
+description = ""
+authors = ["Zijun Guo <18811434432@163.com>"]
+packages = [
+    { include = "opt" },
+]
+
+[tool.poetry.dependencies]
+python = "3.9"
+casadi = "^3.5.5"
+matplotlib = "^3.5.1"
+numpy = "^1.22.3"
+scipy = "^1.8.0"
+PyYAML = "^6.0"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
