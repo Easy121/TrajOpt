@@ -44,7 +44,8 @@ with open(path_to_data) as f:
 left = np.asarray(left).reshape(-1, 2)
 right = np.asarray(right).reshape(-1, 2)
 
-interval = 0.05
+# interval = 0.05
+interval = 0.5
 # Define opt class
 ref = Referenceline_Opt(right,
                          type='opt',
@@ -85,7 +86,7 @@ print('Total length: ', length_final[-1])
 
 
 """ Export """
-# format data
+# format reference
 output = {
     'x': ref.P_all_sol[:, 0].tolist(),
     'y': ref.P_all_sol[:, 1].tolist(),
@@ -96,7 +97,19 @@ output = {
     'br': Br.tolist(),
 }
 path_to_output = os.path.join(os.path.abspath(
-    os.path.dirname(__file__)), 'data/' + 'reference' + '.yaml')
+    # os.path.dirname(__file__)), 'data/' + 'reference' + '.yaml')
+    os.path.dirname(__file__)), 'data/' + 'reference_sparse' + '.yaml')
+with open(path_to_output, 'w') as stream:
+    yaml.dump(output, stream)
+# format track
+output = {
+    'lx': left[:, 0].tolist(),  # left x
+    'ly': left[:, 1].tolist(),
+    'rx': right[:, 0].tolist(),  # right x
+    'ry': right[:, 1].tolist(),
+}
+path_to_output = os.path.join(os.path.abspath(
+    os.path.dirname(__file__)), 'data/' + 'track' + '.yaml')
 with open(path_to_output, 'w') as stream:
     yaml.dump(output, stream)
 

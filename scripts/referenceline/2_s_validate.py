@@ -4,7 +4,6 @@ It compares the prescribed distance with the real value, and visualize the perce
 """
 
 
-from http import server
 from opt.opt import *
 from opt.calc import *
 
@@ -147,7 +146,7 @@ ax[3].set_ylabel('Percent $s_{error}$ (%)', fontsize=15)
 ax[0].legend(loc='lower right', fontsize=10)
 ax[1].legend(loc='lower right', fontsize=10)
 ax[2].legend(loc='upper right', fontsize=10)
-ax[3].legend(loc='lower right', fontsize=10)
+ax[3].legend(loc='upper left', fontsize=10)
 ax[0].grid(linestyle='--')
 ax[1].grid(linestyle='--')
 ax[2].grid(linestyle='--')

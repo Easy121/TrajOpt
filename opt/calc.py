@@ -7,12 +7,25 @@ All Rights Reserved.
 
 import numpy as np
 from scipy import interpolate as si
-
+import yaml
 
 
 def m_ex(index, n):
-        """ Index recursion for external points """
-        return index % n
+    """ Index recursion for external points """
+    return index % n
+    
+
+def XY2h(x, y):
+    """ from x, y coordinates to distances
+    x.size = h.size """
+    # the input should be a open track
+    x = np.append(x, x[0])
+    y = np.append(y, y[0])
+    P = np.vstack((x, y)).T
+    dis = []
+    for i in range(x.size-1):
+        dis.append(np.linalg.norm(P[i+1,:] - P[i,:]))
+    return np.asarray(dis)
 
 
 class Calc:
@@ -498,7 +511,7 @@ class Calc:
         dist_found = 0
         for i in range(self.n):
             min_line_dist = 9999
-            for j in range(j_found-50, j_found+50):
+            for j in range(j_found-10, j_found+10):
                 # distance of point (x0,y0) to line determined by (Px,Py) and theta: 
                 # |cos(theta)(Py - y0) - sin(theta)(Px) - x0|
                 dist  = np.linalg.norm(opp[m_ex(j, n_opp),:] - self.P[i,:])
