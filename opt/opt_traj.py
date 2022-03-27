@@ -150,7 +150,7 @@ class Trajectory_Opt:
         L = 5 * dt + 2 * ddelta * ddelta + 0.00001 * T * T
 
         # Continuous time dynamics
-        f = ca.Function('f', [x, u, kappa], [dx, L], ['x', 'u', 'kappa'], ['dx', 'L'])
+        f = ca.Function('f', [x, u, kappa], [dx, L, dt], ['x', 'u', 'kappa'], ['dx', 'L', 'dt'])
         
         ############################################################
         # Constraints & Guesses ####################################
@@ -158,8 +158,8 @@ class Trajectory_Opt:
         
         # state
         # state_min and state_max in the loop
-        state_guess = [5.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-        state_init  = [1.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+        state_guess = [5.0, 0.0, 0.0, (self.bl[0]+self.br[0])/2, 0.0, 0.0]
+        state_init  = [1.0, 0.0, 0.0, (self.bl[0]+self.br[0])/2, 0.0, 0.0]
         # input
         input_min = [
             -1.414,  # ddelta
@@ -234,7 +234,7 @@ class Trajectory_Opt:
                 kappa_col = kappa_interp(k + tau[j])
 
                 # Append collocation equations
-                fj, qj = f(Xc[j - 1], Uk, kappa_col)
+                fj, qj, tj = f(Xc[j - 1], Uk, kappa_col)
                 g.append(h[k] * fj - xp)
                 lbg.append([0.0] * nx)  # equality constraints of collocation
                 ubg.append([0.0] * nx)
@@ -245,8 +245,8 @@ class Trajectory_Opt:
                 # Add contribution to quadrature function
                 J += B[j] * qj * h[k]
                 
-                # Add contribution to lap time (same with J)
-                dt_int += B[j] * qj * h[k]
+                # Add contribution to lap time
+                dt_int += B[j] * tj * h[k]
 
             # Time segament
             dt_opt.append(dt_int)

@@ -25,7 +25,8 @@ CL = {'BLU': np.array([0, 114, 189])/255,
 """ Construct Problem """
 # Import reference
 path_to_reference = os.path.join(os.path.abspath(os.path.dirname(
-    os.path.dirname(__file__))), 'referenceline/data/reference_sparse.yaml')
+    # os.path.dirname(__file__))), 'referenceline/data/reference_center_sparse.yaml')
+    os.path.dirname(__file__))), 'referenceline/data/reference_right_sparse.yaml')
 with open(path_to_reference, 'r') as stream:
     ref = yaml.safe_load(stream)
 # Import track

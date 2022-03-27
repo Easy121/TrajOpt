@@ -44,8 +44,8 @@ with open(path_to_data) as f:
 left = np.asarray(left).reshape(-1, 2)
 right = np.asarray(right).reshape(-1, 2)
 
-# interval = 0.05
-interval = 0.5
+interval = 0.05
+# interval = 0.5
 # Define opt class
 ref = Referenceline_Opt(right,
                          type='opt',
@@ -73,7 +73,7 @@ length_final = calc_final.Length()
 kappa_final = calc_final.CurvO1F()
 theta_final = calc_final.ThetaAtan()
 # Final left and right boundary distance and absolute position
-Bl, Br, Bl_pos, Br_pos = calc_final.BoundExtern(boundleft.P_all_sol)
+Bl, Br, Bl_pos, Br_pos = calc_final.BoundExternRight(boundleft.P_all_sol)
 # Absolute position of boundary points
 print('Number of fixed points: ', ref.n_fixed)
 print('Number of free points : ', ref.n_free)
@@ -97,21 +97,22 @@ output = {
     'br': Br.tolist(),
 }
 path_to_output = os.path.join(os.path.abspath(
-    # os.path.dirname(__file__)), 'data/' + 'reference' + '.yaml')
-    os.path.dirname(__file__)), 'data/' + 'reference_sparse' + '.yaml')
+    os.path.dirname(__file__)), 'data/' + 'reference_right' + '.yaml')
+    # os.path.dirname(__file__)), 'data/' + 'reference_right_sparse' + '.yaml')
 with open(path_to_output, 'w') as stream:
     yaml.dump(output, stream)
-# format track
-output = {
-    'lx': left[:, 0].tolist(),  # left x
-    'ly': left[:, 1].tolist(),
-    'rx': right[:, 0].tolist(),  # right x
-    'ry': right[:, 1].tolist(),
-}
-path_to_output = os.path.join(os.path.abspath(
-    os.path.dirname(__file__)), 'data/' + 'track' + '.yaml')
-with open(path_to_output, 'w') as stream:
-    yaml.dump(output, stream)
+
+# # format track
+# output = {
+#     'lx': left[:, 0].tolist(),  # left x
+#     'ly': left[:, 1].tolist(),
+#     'rx': right[:, 0].tolist(),  # right x
+#     'ry': right[:, 1].tolist(),
+# }
+# path_to_output = os.path.join(os.path.abspath(
+#     os.path.dirname(__file__)), 'data/' + 'track' + '.yaml')
+# with open(path_to_output, 'w') as stream:
+#     yaml.dump(output, stream)
 
 
 """ Plot """
@@ -135,8 +136,8 @@ ax[0].plot(right[:, 0], right[:, 1], '.', color=CL['BLU'],
             label='Right cones', linewidth=2, markersize=8)
 ax[0].plot(Bl_pos[:, 0], Bl_pos[:, 1], '-', color=CL['GRE'],
             label='Left boundary', linewidth=2, markersize=6)
-# ax[0].plot(Br_pos[:, 0], Br_pos[:, 1], '.', color=CL['GRE'], 
-            # linewidth=2, markersize=6)
+ax[0].plot(Br_pos[:, 0], Br_pos[:, 1], '-', color=CL['GRE'], 
+            label='Right boundary', linewidth=2, markersize=6)
 ax[1].plot(length_final, kappa_final, '-', color=CL['BLU'],
             label='Optimized curvature', linewidth=3, markersize=8)
 ax[2].plot(length_final, theta_final, '-', color=CL['BLU'],
