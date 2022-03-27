@@ -6,6 +6,7 @@ It the simple 3dof model for equality constraints
 
 from opt.calc import *
 from opt.opt import *
+from opt.opt_traj import *
 from opt.vis import *
 
 import os
@@ -32,23 +33,33 @@ path_to_track = os.path.join(os.path.abspath(os.path.dirname(
     os.path.dirname(__file__))), 'referenceline/data/track.yaml')
 with open(path_to_track, 'r') as stream:
     track = yaml.safe_load(stream)
-lx = np.asarray(track["lx"])
-ly = np.asarray(track["ly"])
-rx = np.asarray(track["rx"])
-ry = np.asarray(track["ry"])
 
 traj = Trajectory_Opt(ref)
 
 
 """ Optimize """
-# traj.optimize()
+traj.optimize()
 
 
 """ Plot """
 vis_t0 = time.perf_counter()
 
-plotter = Plotter(ref, track, 12, figsize=(18, 12.5))
+plotter = Plotter(ref, track, traj, 12, figsize=(18, 12.5))
+
+""" state plot """
 plotter.plotTrack(0)
+plotter.plotReference(0)
+plotter.plotOptXY(0, 3, '-', legend_loc='upper right')
+plotter.plotOptState(1, 2, '-', xlabel='Time ($s$)', ylabel='$\dot{\psi}$ ($rad/s$)', legend_loc='lower right')
+plotter.plotOptState(3, 0, '-', xlabel='Time ($s$)', ylabel='$v_x$ ($m/s$)', legend_loc='lower right')
+plotter.plotOptState(4, 1, '-', xlabel='Time ($s$)', ylabel='$v_y$ ($m/s$)', legend_loc='lower right')
+plotter.plotOptState(6, 3, '-', xlabel='Time ($s$)', ylabel='$n$ ($m$)', legend_loc='upper left')
+
+""" input plot """
+plotter.plotOptState(2, 5, '-', xlabel='Time ($s$)', color=CL['ORA'], ylabel='$\delta$ ($rad$)', legend_loc='upper right')
+plotter.plotOptInput(5, 1, '-', xlabel='Time ($s$)', ylabel='$T_l$ ($Nm$)', legend_loc='upper right')
+
+
 # ax[0].plot(ref.P_all_sol[:, 0], ref.P_all_sol[:, 1], '-',
 #            color=CL['BLU'], label='Optimized reference', linewidth=3)
 # ax[0].plot(lx, ly, '.', color=CL['RED'],
