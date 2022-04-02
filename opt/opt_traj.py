@@ -90,19 +90,47 @@ class Trajectory_Opt:
         nx = 6  # of state
         nu = 2  # of control 
         
-        # Declare model variables
-        # the state vector
-        vx   = ca.SX.sym('vx')
-        vy   = ca.SX.sym('vy')
-        dpsi = ca.SX.sym('dpsi')
-        n     = ca.SX.sym('n')
-        chi   = ca.SX.sym('chi')
-        delta = ca.SX.sym('delta')
-        x = ca.vertcat(vx, vy, dpsi, n, chi, delta)
-        # the input vector
-        ddelta = ca.SX.sym('ddelta')
-        T      = ca.SX.sym('T')
-        u = ca.vertcat(ddelta, T)
+        # Declare decision variables
+        # use scaling for decisions variables
+        
+        # scaled state vector
+        vx_n    = ca.SX.sym('vx')
+        vy_n    = ca.SX.sym('vy')
+        dpsi_n  = ca.SX.sym('dpsi')
+        n_n     = ca.SX.sym('n')
+        chi_n   = ca.SX.sym('chi')
+        delta_n = ca.SX.sym('delta')
+        # the scaling for state vector (same as their maximum value)
+        vx_s    = 20
+        vy_s    = 1
+        dpsi_s  = 2
+        n_s     = 3
+        chi_s   = 1
+        delta_s = 0.5
+        # state vector with normal scale
+        vx    = vx_n * vx_s
+        vy    = vy_n * vy_s
+        dpsi  = dpsi_n * dpsi_s
+        n     = n_n * n_s
+        chi   = chi_n * chi_s
+        delta = delta_n * delta_s
+        # formulate array
+        x   = ca.vertcat(vx_n, vy_n, dpsi_n, n_n, chi_n, delta_n)
+        x_s = np.array([vx_s, vy_s, dpsi_s, n_s, chi_s, delta_s])
+        
+        # scaled input vector
+        ddelta_n = ca.SX.sym('ddelta')
+        T_n      = ca.SX.sym('T')
+        # the scaling for input vector (same as their maximum value)
+        ddelta_s = 2
+        T_s      = 200
+        # input vector with normal scale
+        ddelta = ddelta_n * ddelta_s
+        T      = T_n * T_s
+        # formulate array
+        u = ca.vertcat(ddelta_n, T_n)
+        u_s = np.array([ddelta_s, T_s])
+        
         # additional 
         kappa = ca.SX.sym('kappa')  # curvature
         
@@ -143,7 +171,7 @@ class Trajectory_Opt:
         # ddelta just ddelta
 
         # Model equations
-        dx = ca.vertcat(dvx, dvy, ddpsi, dn, dchi, ddelta)
+        dx = ca.vertcat(dvx, dvy, ddpsi, dn, dchi, ddelta) / x_s
 
         # Objective term
         # L = dt
@@ -157,17 +185,17 @@ class Trajectory_Opt:
         ############################################################
         
         # state
-        # state_min and state_max in the loop
-        state_guess = [5.0, 0.0, 0.0, (self.bl[0]+self.br[0])/2, 0.0, 0.0]
-        state_init  = [1.0, 0.0, 0.0, (self.bl[0]+self.br[0])/2, 0.0, 0.0]
+        # state_min and state_max are in the loop
+        state_guess = [5.0 / vx_s, 0.0, 0.0, (self.bl[0]+self.br[0])/2 / n_s, 0.0, 0.0]
+        state_init  = [1.0 / vx_s, 0.0, 0.0, (self.bl[0]+self.br[0])/2 / n_s, 0.0, 0.0]
         # input
         input_min = [
-            -1.414,  # ddelta
-            -100,  # T
+            -1.414 / ddelta_s,  # ddelta
+            -100 / T_s,  # T
         ]
         input_max = [
-            1.414,  # ddelta
-            100,  # T
+            1.414 / ddelta_s,  # ddelta
+            100 / T_s,  # T
         ]
         input_guess = [0.0] * nu
 
@@ -198,7 +226,7 @@ class Trajectory_Opt:
         lbw.append(state_init)  # equality constraint on init
         ubw.append(state_init)
         w0.append(state_init)
-        x_opt.append(Xk)
+        x_opt.append(Xk * x_s)
 
         # Formulate the NLP
         for k in range(N):
@@ -209,7 +237,6 @@ class Trajectory_Opt:
             lbw.append(input_min)
             ubw.append(input_max)
             w0.append(input_guess)
-            u_opt.append(Uk)
 
             # State at collocation points
             Xc = []
@@ -256,25 +283,26 @@ class Trajectory_Opt:
             w.append(Xk)
             # * dimension check
             state_min = [
-                0.0,  # vx
+                0.0 / vx_s,  # vx
                 -np.inf,  # vy 
                 -np.inf,  # dpsi
-                self.br[k],  # n
+                self.br[k] / n_s,  # n
                 -np.inf,  # chi
-                -0.43,  # delta
+                -0.43 / delta_s,  # delta
             ]
             state_max = [
-                5.0,  # vx
+                5.0 / vx_s,  # vx
                 np.inf,  # vy 
                 np.inf,  # dpsi
-                self.bl[k],  # n
+                self.bl[k] / n_s,  # n
                 np.inf,  # chi
-                0.43,  # delta
+                0.43 / delta_s,  # delta
             ]
             lbw.append(state_min)
             ubw.append(state_max)
             w0.append(state_guess)
-            x_opt.append(Xk)
+            x_opt.append(Xk * x_s)
+            u_opt.append(Uk * u_s)
 
             # Add equality constraint
             g.append(Xk_end-Xk)  # compact form
@@ -335,7 +363,7 @@ class Trajectory_Opt:
         print("")
         print("[INFO] Number of optimized raw points: %d" % N)
         print("[INFO] Number of optimized decision variables: %d" % w.shape[0])
-        print("[RESULT] Laptime: %.3fs" % self.t_opt[-1])
-        print("[TIME] Formulation takes: %.3fs" % (t_formulation_end - t_formulation_start))
-        print("[TIME] Solving takes: %.3fs" % (t_solve_end - t_solve_start))
+        print("[RESULT] Laptime: %.3f s" % self.t_opt[-1])
+        print("[TIME] Formulation takes: %.3f s" % (t_formulation_end - t_formulation_start))
+        print("[TIME] Solving takes: %.3f s" % (t_solve_end - t_solve_start))
         
