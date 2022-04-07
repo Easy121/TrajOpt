@@ -242,7 +242,7 @@ class Calc:
     # CURVATURE #####################
     #################################
 
-    def CurvO1F(self):
+    def CurvO1F(self, open=False):
         """ Calculate curvature using simplest forward first order accurate approximation """
         # * generally recommended
         dx = []
@@ -250,15 +250,26 @@ class Calc:
         ddx = []
         ddy = []
         # calculation
-        for i in range(self.n):
-            dx.append(self.x[self.m(i+1)] - self.x[self.m(i)])
-            dy.append(self.y[self.m(i+1)] - self.y[self.m(i)])
-        for i in range(self.n):
-            ddx.append(dx[self.m(i+1)] - dx[self.m(i)])
-            ddy.append(dy[self.m(i+1)] - dy[self.m(i)])
-        # convert to numpy
-        dx = np.asarray(dx)
-        dy = np.asarray(dy)
+        if open is False:
+            for i in range(self.n):
+                dx.append(self.x[self.m(i+1)] - self.x[self.m(i)])
+                dy.append(self.y[self.m(i+1)] - self.y[self.m(i)])
+            for i in range(self.n):
+                ddx.append(dx[self.m(i+1)] - dx[self.m(i)])
+                ddy.append(dy[self.m(i+1)] - dy[self.m(i)])
+            # convert to numpy
+            dx = np.asarray(dx)
+            dy = np.asarray(dy)
+        else:
+            for i in range(self.n-1):
+                dx.append(self.x[self.m(i+1)] - self.x[self.m(i)])
+                dy.append(self.y[self.m(i+1)] - self.y[self.m(i)])
+            for i in range(self.n-2):
+                ddx.append(dx[self.m(i+1)] - dx[self.m(i)])
+                ddy.append(dy[self.m(i+1)] - dy[self.m(i)])
+            # convert to numpy
+            dx = np.asarray(dx)[0:-1]
+            dy = np.asarray(dy)[0:-1]
         ddx = np.asarray(ddx)
         ddy = np.asarray(ddy)
         # curvature
@@ -356,7 +367,7 @@ class Calc:
     # Theta #####################
     ###########################
 
-    def ThetaAtan(self):
+    def ThetaAtan(self, open=False):
         """ Calculate theta [rad] by cross-detecting atan 
         atan is only valid for [-pi/2, pi/2]. Range-crossing should be considered """
         cross = 0.0
@@ -368,29 +379,54 @@ class Calc:
         dx = []
         dy = []
         # calculation
-        for i in range(self.n):
-            dx.append(self.x[self.m(i+1)] - self.x[self.m(i)])
-            dy.append(self.y[self.m(i+1)] - self.y[self.m(i)])
-        for i in range(1,self.n):
-            # get raw data
-            if dx[i] != 0.0:
-                theta_raw.append(np.arctan(dy[i] / dx[i]))
-            elif dy[i] >= 0:
-                theta_raw.append(np.pi / 2.0)
-            else:
-                theta_raw.append(- np.pi / 2.0)
+        if open is False:
+            for i in range(self.n):
+                dx.append(self.x[self.m(i+1)] - self.x[self.m(i)])
+                dy.append(self.y[self.m(i+1)] - self.y[self.m(i)])
+            for i in range(1,self.n):
+                # get raw data
+                if dx[i] != 0.0:
+                    theta_raw.append(np.arctan(dy[i] / dx[i]))
+                elif dy[i] >= 0:
+                    theta_raw.append(np.pi / 2.0)
+                else:
+                    theta_raw.append(- np.pi / 2.0)
 
-            # process raw data
-            if np.abs(theta_raw[i]) > np.pi / 4.0:
-                # then there is possibility for crossing 
-                if theta_raw[i] > 0 and theta_raw[i-1] < 0:
-                    # from - to +, clockwise rotation
-                    cross -= np.pi
-                elif theta_raw[i] < 0 and theta_raw[i-1] > 0:
-                    # from + to -, counter-clockwise rotation
-                    cross += np.pi
+                # process raw data
+                if np.abs(theta_raw[i]) > np.pi / 4.0:
+                    # then there is possibility for crossing 
+                    if theta_raw[i] > 0 and theta_raw[i-1] < 0:
+                        # from - to +, clockwise rotation
+                        cross -= np.pi
+                    elif theta_raw[i] < 0 and theta_raw[i-1] > 0:
+                        # from + to -, counter-clockwise rotation
+                        cross += np.pi
 
-            theta.append(theta_raw[i] + cross)
+                theta.append(theta_raw[i] + cross)
+        if open is True:
+            for i in range(self.n-1):
+                dx.append(self.x[self.m(i+1)] - self.x[self.m(i)])
+                dy.append(self.y[self.m(i+1)] - self.y[self.m(i)])
+            for i in range(1,self.n-1):
+                # get raw data
+                if dx[i] != 0.0:
+                    theta_raw.append(np.arctan(dy[i] / dx[i]))
+                elif dy[i] >= 0:
+                    theta_raw.append(np.pi / 2.0)
+                else:
+                    theta_raw.append(- np.pi / 2.0)
+
+                # process raw data
+                if np.abs(theta_raw[i]) > np.pi / 4.0:
+                    # then there is possibility for crossing 
+                    if theta_raw[i] > 0 and theta_raw[i-1] < 0:
+                        # from - to +, clockwise rotation
+                        cross -= np.pi
+                    elif theta_raw[i] < 0 and theta_raw[i-1] > 0:
+                        # from + to -, counter-clockwise rotation
+                        cross += np.pi
+
+                theta.append(theta_raw[i] + cross)
         theta = np.asarray(theta)
         return theta
 
