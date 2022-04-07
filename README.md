@@ -1,6 +1,6 @@
 <!-- * if you have time, update this readme file for that it is outdated (last updated in 2021.10) -->
 
-# BITFSD Trajectory Optimization Program
+# Everything About Trajectory Optimization
 
 ## Motivation 
 
