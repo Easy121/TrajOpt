@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 plt.rcParams.update({
     "font.family": "DeJavu Serif",
     "font.serif": ["Computer Modern Roman"], })
-fig, ax = plt.subplots(1, 4, figsize=(20, 5), dpi=80)
+fig, ax = plt.subplots(1, 5, figsize=(25, 5), dpi=80)
 CL = {'BLU': np.array([0, 114, 189])/255,
       'RED': np.array([217, 83, 25])/255,
       'ORA': np.array([235, 177, 32])/255,
@@ -39,6 +39,10 @@ end_4 = start_4 + 12.5
 start_5 = end_4
 end_5 = start_5 + 12
 
+# extension
+start_6 = end_5
+end_6 = start_6 + 12
+
 bl_1 = (1.1*w+0.25)/2
 br_1 = -(1.1*w+0.25)/2
 bl_3 = (1.1*w+0.25)/2+1+(w+1)
@@ -58,6 +62,8 @@ sampled_points_1 = np.vstack((np.linspace(start_1, end_1, n,endpoint=False), np.
 sampled_points_3 = np.vstack((np.linspace(start_3, end_3, n,endpoint=False), np.array([(bl_3+br_3)/2]*n))).T
 # 5
 sampled_points_5 = np.vstack((np.linspace(start_5, end_5, n,endpoint=False), np.array([0]*n))).T
+# 6
+sampled_points_6 = np.vstack((np.linspace(start_6, end_6, n,endpoint=False), np.array([0]*n))).T
 
 # points in section 2
 contorl_points_2 = np.array([[start_2, 0], 
@@ -76,7 +82,12 @@ curve_4 = BPoly(contorl_points_4[:, np.newaxis, :], [0, 1])
 sampled_points_4 = curve_4(X)
 
 # together
-sampled_points = np.concatenate((sampled_points_1, sampled_points_2, sampled_points_3, sampled_points_4, sampled_points_5))
+sampled_points = np.concatenate((sampled_points_1, 
+                                 sampled_points_2, 
+                                 sampled_points_3, 
+                                 sampled_points_4, 
+                                 sampled_points_5,
+                                 sampled_points_6))  # extend the track
 
 
 
@@ -94,21 +105,36 @@ Br = np.array([0]*length_final.size)
 print('Number of points: ', length_final.size)
 
 
+
+""" Velocity Profile Generation """
+# ay = vx^2 / R = vx^2 * kappa, vx_max = sqrt(ay_max/kappa)
+vx_max = 5
+ay_max = 2.2
+vx = []
+for i in range(kappa_final.size):
+    if kappa_final[i] != 0:
+        vx.append(np.minimum(vx_max, np.sqrt(np.abs(ay_max/kappa_final[i]))))
+    else:
+        vx.append(vx_max)
+vx = np.asarray(vx)
+
+
 """ Export """
-# format reference
-output = {
-    'x': sampled_points[:, 0].tolist(),
-    'y': sampled_points[:, 1].tolist(),
-    's': length_final.tolist(),
-    'kappa': kappa_final.tolist(),
-    'theta': theta_final.tolist(),
-    'bl': Bl.tolist(),
-    'br': Br.tolist(),
-}
-path_to_output = os.path.join(os.path.abspath(
-    os.path.dirname(__file__)), 'data/' + 'reference_DLC' + '.yaml')
-with open(path_to_output, 'w') as stream:
-    yaml.dump(output, stream)
+# # format reference
+# output = {
+#     'x': sampled_points[:, 0].tolist(),
+#     'y': sampled_points[:, 1].tolist(),
+#     's': length_final.tolist(),
+#     'kappa': kappa_final.tolist(),
+#     'theta': theta_final.tolist(),
+#     'bl': Bl.tolist(),
+#     'br': Br.tolist(),
+#     'vx': vx.tolist(),
+# }
+# path_to_output = os.path.join(os.path.abspath(
+#     os.path.dirname(__file__)), 'data/' + 'reference_DLC' + '.yaml')
+# with open(path_to_output, 'w') as stream:
+#     yaml.dump(output, stream)
 
 
 """ Plot """
@@ -129,13 +155,16 @@ ax[0].plot(sampled_points[0::5,0], sampled_points[0::5,1], '--', color=CL['BLU']
 ax[1].plot(length_final, kappa_final, '-', color=CL['BLU'],
             label='Reference curvature', linewidth=3, markersize=8)
 ax[2].plot(length_final, theta_final, '-', color=CL['BLU'],
-            label='Optimized $\\theta$ (yaw of track)', linewidth=3, markersize=8)
+            label='Reference $\\theta$ (yaw of track)', linewidth=3, markersize=8)
 ax[3].plot(dis_final, '-', color=CL['BLU'],
             label='Distance', linewidth=3, markersize=8)
+ax[4].plot(length_final, vx, '-', color=CL['BLU'],
+            label='Velocity Profile', linewidth=3, markersize=8)
 
 # ax[0].axis('equal')
 ax[1].set_xlim([length_final[0], length_final[-1]])
 ax[2].set_xlim([length_final[0], length_final[-1]])
+ax[4].set_xlim([length_final[0], length_final[-1]])
 
 ax[0].set_xlabel('X ($m$)', fontsize=15)
 ax[0].set_ylabel('Y ($m$)', fontsize=15)
@@ -145,13 +174,17 @@ ax[2].set_xlabel('Curve length ($m$)', fontsize=15)
 ax[2].set_ylabel('$\\theta$ ($rad$)', fontsize=15)
 ax[3].set_xlabel('Curve length ($m$)', fontsize=15)
 ax[3].set_ylabel('Distance ($m$)', fontsize=15)
+ax[4].set_xlabel('Curve length ($m$)', fontsize=15)
+ax[4].set_ylabel('$v_x$ ($m/s$)', fontsize=15)
 ax[0].legend(loc='upper right', fontsize=10)
 ax[1].legend(loc='lower right', fontsize=10)
 ax[2].legend(loc='upper right', fontsize=10)
 ax[3].legend(loc='lower right', fontsize=10)
+ax[4].legend(loc='lower right', fontsize=10)
 ax[0].grid(linestyle='--')
 ax[1].grid(linestyle='--')
 ax[2].grid(linestyle='--')
 ax[3].grid(linestyle='--')
+ax[4].grid(linestyle='--')
 plt.tight_layout()
 plt.show()
