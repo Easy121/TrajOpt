@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 plt.rcParams.update({
     "font.family": "DeJavu Serif",
     "font.serif": ["Computer Modern Roman"], })
-fig, ax = plt.subplots(1, 5, figsize=(25, 5), dpi=80)
+fig, ax = plt.subplots(1, 4, figsize=(20, 5), dpi=80)
 CL = {'BLU': np.array([0, 114, 189])/255,
       'RED': np.array([217, 83, 25])/255,
       'ORA': np.array([235, 177, 32])/255,
@@ -122,25 +122,6 @@ for i in range(kappa_final.size):
 vx = np.asarray(vx)
 
 
-""" Export """
-# # format reference
-# output = {
-#     'x': sampled_points[:, 0].tolist(),
-#     'y': sampled_points[:, 1].tolist(),
-#     's': length_final.tolist(),
-#     'kappa': kappa_final.tolist(),
-#     'theta': theta_final.tolist(),
-#     'bl': Bl.tolist(),
-#     'br': Br.tolist(),
-#     'vx': vx.tolist(),
-# }
-# path_to_output = os.path.join(os.path.abspath(
-#     # os.path.dirname(__file__)), 'data/' + 'reference_DLC' + '.yaml')
-#     os.path.dirname(__file__)), 'data/' + 'reference_DLC_speed_up' + '.yaml')
-# with open(path_to_output, 'w') as stream:
-#     yaml.dump(output, stream)
-
-
 """ Plot """
 # plot the lane change boundary
 # 1
@@ -160,15 +141,15 @@ ax[1].plot(length_final, kappa_final, '-', color=CL['BLU'],
             label='Reference curvature', linewidth=3, markersize=8)
 ax[2].plot(length_final, theta_final, '-', color=CL['BLU'],
             label='Reference $\\theta$ (yaw of track)', linewidth=3, markersize=8)
-ax[3].plot(dis_final, '-', color=CL['BLU'],
-            label='Distance', linewidth=3, markersize=8)
-ax[4].plot(length_final, vx, '-', color=CL['BLU'],
+# ax[3].plot(dis_final, '-', color=CL['BLU'],
+#             label='Distance', linewidth=3, markersize=8)
+ax[3].plot(length_final, vx, '-', color=CL['BLU'],
             label='Velocity Profile', linewidth=3, markersize=8)
 
 # ax[0].axis('equal')
 ax[1].set_xlim([length_final[0], length_final[-1]])
 ax[2].set_xlim([length_final[0], length_final[-1]])
-ax[4].set_xlim([length_final[0], length_final[-1]])
+ax[3].set_xlim([length_final[0], length_final[-1]])
 
 ax[0].set_xlabel('X ($m$)', fontsize=15)
 ax[0].set_ylabel('Y ($m$)', fontsize=15)
@@ -176,19 +157,19 @@ ax[1].set_xlabel('Curve length ($m$)', fontsize=15)
 ax[1].set_ylabel('Curvature', fontsize=15)
 ax[2].set_xlabel('Curve length ($m$)', fontsize=15)
 ax[2].set_ylabel('$\\theta$ ($rad$)', fontsize=15)
+# ax[3].set_xlabel('Curve length ($m$)', fontsize=15)
+# ax[3].set_ylabel('Distance ($m$)', fontsize=15)
 ax[3].set_xlabel('Curve length ($m$)', fontsize=15)
-ax[3].set_ylabel('Distance ($m$)', fontsize=15)
-ax[4].set_xlabel('Curve length ($m$)', fontsize=15)
-ax[4].set_ylabel('$v_x$ ($m/s$)', fontsize=15)
+ax[3].set_ylabel('$v_x$ ($m/s$)', fontsize=15)
 ax[0].legend(loc='upper right', fontsize=10)
 ax[1].legend(loc='lower right', fontsize=10)
 ax[2].legend(loc='upper right', fontsize=10)
 ax[3].legend(loc='lower right', fontsize=10)
-ax[4].legend(loc='lower right', fontsize=10)
+# ax[4].legend(loc='lower right', fontsize=10)
 ax[0].grid(linestyle='--')
 ax[1].grid(linestyle='--')
 ax[2].grid(linestyle='--')
 ax[3].grid(linestyle='--')
-ax[4].grid(linestyle='--')
+# ax[4].grid(linestyle='--')
 plt.tight_layout()
 plt.show()

@@ -14,7 +14,7 @@ import yaml
 # e.g., I want to plot 5 plots, the it will generate a full plot with 2-row-3-column subplots
 PlotNumConvert = {
     # two plots are reserved for time box plot
-    1: [1, 2],
+    1: [1, 1],
     2: [1, 2],
     3: [2, 2],
     4: [2, 2],
@@ -68,6 +68,7 @@ class Plotter():
                 ax_temporary.grid(linestyle='--')
                 self.ax.append(ax_temporary) 
                 index += 1
+        
         self.interval = interval
         
     ###################################
