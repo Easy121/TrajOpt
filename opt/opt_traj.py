@@ -6,6 +6,8 @@ All Rights Reserved.
 
 
 from . import calc
+# new model added here
+from .model.bi_3dof_ddelta import Bi3dofddelta
 
 import time
 import sys
@@ -15,13 +17,23 @@ import yaml
 
 
 class Trajectory_Opt:
-    def __init__(self, ref) -> None:
+    def __init__(self, ref, config, model_type) -> None:
+        # from ref
         self.x = np.asarray(ref["x"])
         self.y = np.asarray(ref["y"])
         self.s = np.asarray(ref["s"])
         self.kappa = np.asarray(ref["kappa"])
         self.bl = np.asarray(ref["bl"])  # +
         self.br = np.asarray(ref["br"])  # -
+        
+        # from config
+        self.nx = config["nx"]
+        self.nu = config["nu"]
+        
+        # new model added here
+        if model_type == 'bi_3dof_ddelta':
+            self.model = Bi3dofddelta(ref, config)
+        
         
     def optimize(self):
         """ start optimizing mintime """
@@ -83,123 +95,6 @@ class Trajectory_Opt:
             B[j] = pint(1.0)
 
         ############################################################
-        # System Definition ########################################
-        ############################################################
-        
-        # number
-        nx = 6  # of state
-        nu = 2  # of control 
-        
-        # Declare decision variables
-        # use scaling for decisions variables
-        
-        # scaled state vector
-        vx_n    = ca.SX.sym('vx')
-        vy_n    = ca.SX.sym('vy')
-        dpsi_n  = ca.SX.sym('dpsi')
-        n_n     = ca.SX.sym('n')
-        chi_n   = ca.SX.sym('chi')
-        delta_n = ca.SX.sym('delta')
-        # the scaling for state vector (same as their maximum value)
-        vx_s    = 20
-        vy_s    = 1
-        dpsi_s  = 2
-        n_s     = 3
-        chi_s   = 1
-        delta_s = 0.5
-        # state vector with normal scale
-        vx    = vx_n * vx_s
-        vy    = vy_n * vy_s
-        dpsi  = dpsi_n * dpsi_s
-        n     = n_n * n_s
-        chi   = chi_n * chi_s
-        delta = delta_n * delta_s
-        # formulate array
-        x   = ca.vertcat(vx_n, vy_n, dpsi_n, n_n, chi_n, delta_n)
-        x_s = np.array([vx_s, vy_s, dpsi_s, n_s, chi_s, delta_s])
-        
-        # scaled input vector
-        ddelta_n = ca.SX.sym('ddelta')
-        T_n      = ca.SX.sym('T')
-        # the scaling for input vector (same as their maximum value)
-        ddelta_s = 2
-        T_s      = 200
-        # input vector with normal scale
-        ddelta = ddelta_n * ddelta_s
-        T      = T_n * T_s
-        # formulate array
-        u = ca.vertcat(ddelta_n, T_n)
-        u_s = np.array([ddelta_s, T_s])
-        
-        # additional 
-        kappa = ca.SX.sym('kappa')  # curvature
-        
-        
-        # model parameters
-        By = 9.882
-        Cy = 1.111
-        Dy = -2.559
-        Ey = 0.2949
-        
-        R  = 0.2186
-        m  = 230
-        g  = 9.81
-        Iz = 138.53
-        lf = 0.858
-        lr = 0.702
-        l  = lr + lf
-        
-        Fzf = m * g * lr / l
-        Fzr = m * g * lf / l
-        
-        # intermediate value
-        # the torque also drives wheels
-        Fx  = T / R * 0.94  # 94% due to acceleration of wheels
-        # no need to multiply two because Fzf already twice
-        Fyf = Fzf * By * Cy * Dy * (ca.atan((vy + dpsi * lf) / vx) - delta)
-        Fyr = Fzr * By * Cy * Dy * (ca.atan((vy - dpsi * lr) / vx))
-        
-        # model descriptions
-        # convert to s-based dynamics instead of t-based
-        dt    = (1 - n * kappa) / (vx * ca.cos(chi) - vy * ca.sin(chi))  # 1/ds or dt/ds integrate to get t
-        
-        dvx   = dt * ((Fx - Fyf * ca.sin(delta)) / m + dpsi * vy)
-        dvy   = dt * ((Fyf * ca.cos(delta) + Fyr) / m - dpsi * vx)
-        ddpsi = dt * ((Fyf * lf * ca.cos(delta) + Fx * lf * ca.sin(delta) - Fyr * lr) / Iz)
-        dn    = dt * (vx * ca.sin(chi) + vy * ca.cos(chi))
-        dchi  = dt * dpsi - kappa
-        # ddelta just ddelta
-
-        # Model equations
-        dx = ca.vertcat(dvx, dvy, ddpsi, dn, dchi, ddelta) / x_s
-
-        # Objective term
-        # L = dt
-        L = 5 * dt + 2 * ddelta * ddelta + 0.00001 * T * T
-
-        # Continuous time dynamics
-        f = ca.Function('f', [x, u, kappa], [dx, L, dt], ['x', 'u', 'kappa'], ['dx', 'L', 'dt'])
-        
-        ############################################################
-        # Constraints & Guesses ####################################
-        ############################################################
-        
-        # state
-        # state_min and state_max are in the loop
-        state_guess = [5.0 / vx_s, 0.0, 0.0, (self.bl[0]+self.br[0])/2 / n_s, 0.0, 0.0]
-        state_init  = [1.0 / vx_s, 0.0, 0.0, (self.bl[0]+self.br[0])/2 / n_s, 0.0, 0.0]
-        # input
-        input_min = [
-            -1.414 / ddelta_s,  # ddelta
-            -100 / T_s,  # T
-        ]
-        input_max = [
-            1.414 / ddelta_s,  # ddelta
-            100 / T_s,  # T
-        ]
-        input_guess = [0.0] * nu
-
-        ############################################################
         # Nonlinear Programming Formulation ########################
         ############################################################
 
@@ -220,34 +115,34 @@ class Trajectory_Opt:
         dt_opt = []
 
         # "Lift" initial conditions
-        Xk = ca.MX.sym('X0', nx)
+        Xk = ca.MX.sym('X0', self.nx)
         w.append(Xk)
         # * dimension check
-        lbw.append(state_init)  # equality constraint on init
-        ubw.append(state_init)
-        w0.append(state_init)
-        x_opt.append(Xk * x_s)
+        lbw.append(self.model.state_init)  # equality constraint on init
+        ubw.append(self.model.state_init)
+        w0.append(self.model.state_init)
+        x_opt.append(Xk * self.model.x_s)
 
         # Formulate the NLP
         for k in range(N):
             # New NLP variable for the control
-            Uk = ca.MX.sym('U_' + str(k), nu)
+            Uk = ca.MX.sym('U_' + str(k), self.nu)
             w.append(Uk)
             # * dimension check
-            lbw.append(input_min)
-            ubw.append(input_max)
-            w0.append(input_guess)
+            lbw.append(self.model.getInputMin(k))
+            ubw.append(self.model.getInputMax(k))
+            w0.append(self.model.input_guess)
 
             # State at collocation points
             Xc = []
             for j in range(d):
-                Xkj = ca.MX.sym('X_'+str(k)+'_'+str(j), nx)
+                Xkj = ca.MX.sym('X_'+str(k)+'_'+str(j), self.nx)
                 Xc.append(Xkj)
                 w.append(Xkj)
-                lbw.append([-np.inf] * nx)
-                ubw.append([np.inf] * nx)
+                lbw.append([-np.inf] * self.nx)
+                ubw.append([np.inf] * self.nx)
                 # * dimension check
-                w0.append(state_guess)
+                w0.append(self.model.state_guess)
 
             # Loop over collocation points
             Xk_end = D[0] * Xk
@@ -261,17 +156,17 @@ class Trajectory_Opt:
                 kappa_col = kappa_interp(k + tau[j])
 
                 # Append collocation equations
-                fj, qj, tj = f(Xc[j - 1], Uk, kappa_col)
+                fj, qj, tj = self.model.f(Xc[j - 1], Uk, kappa_col)
                 g.append(h[k] * fj - xp)
-                lbg.append([0.0] * nx)  # equality constraints of collocation
-                ubg.append([0.0] * nx)
+                lbg.append([0.0] * self.nx)  # equality constraints of collocation
+                ubg.append([0.0] * self.nx)
 
                 # Add contribution to the end state
                 Xk_end = Xk_end + D[j] * Xc[j - 1]
 
+                # Integration
                 # Add contribution to quadrature function
                 J += B[j] * qj * h[k]
-                
                 # Add contribution to lap time
                 dt_int += B[j] * tj * h[k]
 
@@ -279,35 +174,18 @@ class Trajectory_Opt:
             dt_opt.append(dt_int)
             
             # New NLP variable for state at end of interval
-            Xk = ca.MX.sym('X_' + str(k+1), nx)
+            Xk = ca.MX.sym('X_' + str(k+1), self.nx)
             w.append(Xk)
-            # * dimension check
-            state_min = [
-                0.0 / vx_s,  # vx
-                -np.inf,  # vy 
-                -np.inf,  # dpsi
-                self.br[k] / n_s,  # n
-                -np.inf,  # chi
-                -0.43 / delta_s,  # delta
-            ]
-            state_max = [
-                5.0 / vx_s,  # vx
-                np.inf,  # vy 
-                np.inf,  # dpsi
-                self.bl[k] / n_s,  # n
-                np.inf,  # chi
-                0.43 / delta_s,  # delta
-            ]
-            lbw.append(state_min)
-            ubw.append(state_max)
-            w0.append(state_guess)
-            x_opt.append(Xk * x_s)
-            u_opt.append(Uk * u_s)
+            lbw.append(self.model.getStateMin(k))
+            ubw.append(self.model.getStateMax(k))
+            w0.append(self.model.state_guess)
+            x_opt.append(Xk * self.model.x_s)
+            u_opt.append(Uk * self.model.u_s)
 
             # Add equality constraint
             g.append(Xk_end-Xk)  # compact form
-            lbg.append([0.0] * nx)
-            ubg.append([0.0] * nx)
+            lbg.append([0.0] * self.nx)
+            ubg.append([0.0] * self.nx)
 
         # Concatenate vectors
         w = ca.vertcat(*w)
@@ -328,10 +206,10 @@ class Trajectory_Opt:
         ############################################################
 
         # solver options
-        opts = {"expand": True,
-                "verbose": True,
-                "ipopt.max_iter": 2000,
-                "ipopt.tol": 1e-7}
+        # opts = {"expand": True,
+        #         "verbose": True,
+        #         "ipopt.max_iter": 2000,
+        #         "ipopt.tol": 1e-7}
 
         prob = {'f': J, 'x': w, 'g': g}
         solver = ca.nlpsol('solver', 'ipopt', prob)

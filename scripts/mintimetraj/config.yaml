@@ -1,0 +1,2 @@
+nx: 6  # number of state
+nu: 2  # number of control

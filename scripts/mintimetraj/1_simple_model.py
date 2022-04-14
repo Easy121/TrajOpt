@@ -22,27 +22,36 @@ CL = {'BLU': np.array([0, 114, 189])/255,
       'BRO': np.array([162, 20, 47])/255,
       'BLK': np.array([0, 0, 0])/255,}
 
+
+""" Path """
+
+path_to_reference = os.path.join(os.path.abspath(os.path.dirname(__file__)), '../referenceline/data/reference_center_sparse.yaml')
+path_to_track = os.path.join(os.path.abspath(os.path.dirname(__file__)), '../referenceline/data/track.yaml')
+path_to_config = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'config.yaml')
+
+
 """ Construct Problem """
+
 # Import reference
-path_to_reference = os.path.join(os.path.abspath(os.path.dirname(
-    os.path.dirname(__file__))), 'referenceline/data/reference_center_sparse.yaml')
-    # os.path.dirname(__file__))), 'referenceline/data/reference_right_sparse.yaml')
 with open(path_to_reference, 'r') as stream:
     ref = yaml.safe_load(stream)
 # Import track
-path_to_track = os.path.join(os.path.abspath(os.path.dirname(
-    os.path.dirname(__file__))), 'referenceline/data/track.yaml')
 with open(path_to_track, 'r') as stream:
     track = yaml.safe_load(stream)
-
-traj = Trajectory_Opt(ref)
+# Import config
+with open(path_to_config, 'r') as stream:
+    config = yaml.safe_load(stream)
+# object
+traj = Trajectory_Opt(ref, config, 'bi_3dof_ddelta')
 
 
 """ Optimize """
+
 traj.optimize()
 
 
 """ Plot """
+
 vis_t0 = time.perf_counter()
 
 plotter = Plotter(ref, track, traj, 12, figsize=(18, 12.5))
