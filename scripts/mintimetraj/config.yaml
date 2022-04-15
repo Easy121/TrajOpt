@@ -1,2 +1,5 @@
 nx: 6  # number of state
 nu: 2  # number of control
+
+mu: 1  # road adhesion coefficients
+mu_c: 1  # road adhesion coefficients used for constraints

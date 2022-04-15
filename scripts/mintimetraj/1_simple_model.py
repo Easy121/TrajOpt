@@ -20,7 +20,8 @@ CL = {'BLU': np.array([0, 114, 189])/255,
       'PUR': np.array([126, 172, 48])/255,
       'GRE': np.array([119, 172, 48])/255,
       'BRO': np.array([162, 20, 47])/255,
-      'BLK': np.array([0, 0, 0])/255,}
+      'BLK': np.array([0, 0, 0])/255,
+      'WHT': np.array([255, 255, 255])/255,}
 
 
 """ Path """
@@ -28,6 +29,21 @@ CL = {'BLU': np.array([0, 114, 189])/255,
 path_to_reference = os.path.join(os.path.abspath(os.path.dirname(__file__)), '../referenceline/data/reference_center_sparse.yaml')
 path_to_track = os.path.join(os.path.abspath(os.path.dirname(__file__)), '../referenceline/data/track.yaml')
 path_to_config = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'config.yaml')
+path_to_param = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'param.yaml')
+
+
+""" Data """
+
+# mu for Vis
+with open(path_to_config) as stream:
+    solver_config = yaml.safe_load(stream)
+mu = solver_config['mu']
+mu_c = solver_config['mu_c']
+# Dx and Dy for friction ellipse
+with open(path_to_param) as stream:
+    vehicle_param = yaml.safe_load(stream)
+Dx = np.abs(vehicle_param['wheel']['Dx'])
+Dy = np.abs(vehicle_param['wheel']['Dy'])
 
 
 """ Construct Problem """
@@ -51,24 +67,47 @@ traj.optimize()
 
 
 """ Plot """
+# * vis.py is the replicate of visual.py from GMPCPlatform, this is an efficient workaround, please keep updated
 
 vis_t0 = time.perf_counter()
 
-plotter = Plotter(ref, track, traj, 12, figsize=(18, 12.5))
+# parse data
+plotter = Plotter(None, None, 12, width_ratios=[0, 0], figsize=(24, 12), mode='debug', interval=1)
+plotter.t_sequence = traj.t_opt
+plotter.x_arch = traj.x_opt
+plotter.u_arch = traj.u_opt
+plotter.dx_arch = traj.dx_opt
+plotter.carinfo_arch = traj.carinfo_opt
 
 """ state plot """
-plotter.plotTrack(0)
-plotter.plotReference(0)
-plotter.plotOptXY(0, 3, '-', legend_loc='upper right')
-plotter.plotOptState(1, 2, '-', xlabel='Time ($s$)', ylabel='$\dot{\psi}$ ($rad/s$)', legend_loc='lower right')
-plotter.plotOptState(3, 0, '-', xlabel='Time ($s$)', ylabel='$v_x$ ($m/s$)', legend_loc='lower right')
-plotter.plotOptState(4, 1, '-', xlabel='Time ($s$)', ylabel='$v_y$ ($m/s$)', legend_loc='lower right')
-plotter.plotOptState(6, 3, '-', xlabel='Time ($s$)', ylabel='$n$ ($m$)', legend_loc='upper left')
-plotter.plotOptState(7, 4, '-', xlabel='Time ($s$)', ylabel='$\chi$ ($rad$)', legend_loc='upper left')
+plotter.plotTrack(0, path_to_track)
+plotter.plotReference(0, path_to_reference, color=CL['BLU'], interval=1)
+plotter.plotOptXY(0, 3, ref, '-', legend_loc='upper right')
+plotter.plotActualState(1, 2, '-', xlabel='Time ($s$)', ylabel='$\dot{\psi}$ ($rad/s$)', legend_loc='lower right')
+plotter.plotActualState(2, 1, '-', xlabel='Time ($s$)', ylabel='$v_y$ ($m/s$)', legend_loc='lower right')
+plotter.plotActualState(4, 0, '-', xlabel='Time ($s$)', ylabel='$v_x$ ($m/s$)', legend_loc='lower right')
+plotter.plotActualState(5, 3, '-', xlabel='Time ($s$)', ylabel='$n$ ($m$)', legend_loc='upper left')
 
 """ input plot """
-plotter.plotOptState(2, 5, '-', xlabel='Time ($s$)', color=CL['ORA'], ylabel='$\delta$ ($rad$)', legend_loc='upper right')
-plotter.plotOptInput(5, 1, '-', xlabel='Time ($s$)', ylabel='$T_l$ ($Nm$)', legend_loc='upper right')
+plotter.plotActualState(3, 5, '-', xlabel='Time ($s$)', ylabel='$\delta$ ($rad$)', color=CL['ORA'], legend_loc='upper left')
+plotter.plotActualInput(7, 1, '-', xlabel='Time ($s$)', ylabel='$T_l$ ($Nm$)', legend_loc='upper right')
+plotter.plotActualInput(11, 0, '-', xlabel='Time ($s$)', ylabel='$\dot{\delta}$ ($rad/s$)', legend_loc='upper left')
+
+""" dstate plot """
+plotter.plotActualdState(8, 0, '-', omit_start=1, xlabel='Time ($s$)', ylabel='$a$ ($m/s^2$)', color=CL['BLK'], legend='$\dot{v}_x$', legend_loc='upper right')
+plotter.plotActualdState(8, 1, '-', omit_start=1, xlabel='Time ($s$)', ylabel='$a$ ($m/s^2$)', color=CL['ORA'], legend='$\dot{v}_y$', legend_loc='upper right')
+plotter.plotActualAx(8, 0, 1, 2, '-', omit_start=1, xlabel='Time ($s$)', ylabel='$a$ ($m/s^2$)', color=CL['RED'], legend='$a_x$', legend_loc='upper right')
+plotter.plotActualAy(8, 1, 0, 2, '-', omit_start=1, xlabel='Time ($s$)', ylabel='$a$ ($m/s^2$)', color=CL['BLU'], legend='$a_y$', legend_loc='upper right')
+# Vertical Tire force
+plotter.plotActualCarInfo(9, 0, '-', omit_start=1, xlabel='Time ($s$)', ylabel='$F_z$ ($N$)', color=CL['RED'], legend='$F_{z,f}$', legend_loc='upper right')
+plotter.plotActualCarInfo(9, 1, '-', omit_start=1, xlabel='Time ($s$)', ylabel='$F_z$ ($N$)', color=CL['BLU'], legend='$F_{z,r}$', legend_loc='upper right')
+# Long. and Lat. Tire force
+plotter.plotFrictionEllipse(10, [Dx, Dy], mu, legend='Fric. Ell.')
+plotter.plotFrictionEllipse(10, [Dx, Dy], mu_c, legend='Constr. Ell.')
+plotter.plotActualTireForceDless(10, 2, 4, 0, '-', omit_start=1, color=CL['RED'], legend='$F_{f}$', legend_loc='upper right', markeredgewidth=0.5, interval=1)
+plotter.plotActualTireForceDless(10, 3, 5, 1, '-', omit_start=1, color=CL['BLU'], legend='$F_{r}$', legend_loc='upper right', markeredgewidth=0.5, interval=1)
+plotter.plotActualTireForceDlessEnd(10, 2, 4, 0, '+', zorder=5, color=CL['WHT'], legend_loc='upper right')
+plotter.plotActualTireForceDlessEnd(10, 3, 5, 1, '+', zorder=5, color=CL['WHT'], legend_loc='upper right')
 
 vis_t = time.perf_counter() - vis_t0
 print("[TIME] Visualization takes: %.3f s" % vis_t) # CPU seconds elapsed (floating point)

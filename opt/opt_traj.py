@@ -111,6 +111,10 @@ class Trajectory_Opt:
         # For plotting x and u given w
         x_opt = []
         u_opt = []
+        # dstate
+        dx_opt = []
+        # carinfo
+        carinfo_opt = []
         # lap time
         dt_opt = []
 
@@ -181,6 +185,8 @@ class Trajectory_Opt:
             w0.append(self.model.state_guess)
             x_opt.append(Xk * self.model.x_s)
             u_opt.append(Uk * self.model.u_s)
+            dx_opt.append(self.model.f_d(Xk, Uk, kappa_interp(k)))
+            carinfo_opt.append(self.model.f_carinfo(Xk, Uk))
 
             # Add equality constraint
             g.append(Xk_end-Xk)  # compact form
@@ -192,6 +198,8 @@ class Trajectory_Opt:
         g = ca.vertcat(*g)
         x_opt = ca.horzcat(*x_opt)  # horzcat for 2D matrix
         u_opt = ca.horzcat(*u_opt)
+        dx_opt = ca.horzcat(*dx_opt)
+        carinfo_opt = ca.horzcat(*carinfo_opt)
         dt_opt = ca.vertcat(*dt_opt)  # vertcat for 1D vec
         w0 = np.concatenate(w0)
         lbw = np.concatenate(lbw)
@@ -215,8 +223,8 @@ class Trajectory_Opt:
         solver = ca.nlpsol('solver', 'ipopt', prob)
 
         # Function to get x and u trajectories from w
-        trajectories = ca.Function('trajectories', [w], [x_opt, u_opt, dt_opt], 
-                                   ['w'], ['x', 'u', 'dt_opt'])
+        trajectories = ca.Function('trajectories', [w], [x_opt, u_opt, dx_opt, carinfo_opt, dt_opt], 
+                                   ['w'], ['x', 'u', 'dx_opt', 'carinfo_opt', 'dt_opt'])
 
         t_solve_start = time.perf_counter()
 
@@ -229,9 +237,11 @@ class Trajectory_Opt:
             print('\033[91m' + 'ERROR: Optimization did not succeed!' + '\033[0m')
             sys.exit(1)
         
-        x_opt, u_opt, dt_opt = trajectories(sol['x'])
-        self.x_opt = x_opt.full() # to numpy array
-        self.u_opt = u_opt.full() # to numpy array
+        x_opt, u_opt, dx_opt, carinfo_opt, dt_opt = trajectories(sol['x'])
+        self.x_opt = x_opt.full().T # to numpy array
+        self.u_opt = np.vstack((np.array([0.0]*self.nu), u_opt.full().T)) # to numpy array
+        self.dx_opt = np.vstack((np.array([0.0]*self.nx), dx_opt.full().T)) # to numpy array
+        self.carinfo_opt = np.vstack((np.array([0.0]*carinfo_opt.full().T.shape[1]), carinfo_opt.full().T)) # to numpy array
         self.t_opt = np.hstack((0.0, np.cumsum(dt_opt)))
         
         ############################################################

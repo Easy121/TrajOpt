@@ -95,15 +95,29 @@ class Bi3dofddelta:
         # convert to s-based dynamics instead of t-based
         dt    = (1 - n * kappa) / (vx * ca.cos(chi) - vy * ca.sin(chi))  # 1/ds or dt/ds integrate to get t
         
-        dvx   = dt * ((Fx - Fyf * ca.sin(delta)) / m + dpsi * vy)
-        dvy   = dt * ((Fyf * ca.cos(delta) + Fyr) / m - dpsi * vx)
-        ddpsi = dt * ((Fyf * lf * ca.cos(delta) + Fx * lf * ca.sin(delta) - Fyr * lr) / Iz)
-        dn    = dt * (vx * ca.sin(chi) + vy * ca.cos(chi))
-        dchi  = dt * dpsi - kappa
-        # ddelta just ddelta
+        # with respect to s
+        dvx      = dt * ((Fx - Fyf * ca.sin(delta)) / m + dpsi * vy)
+        dvy      = dt * ((Fyf * ca.cos(delta) + Fyr) / m - dpsi * vx)
+        ddpsi    = dt * ((Fyf * lf * ca.cos(delta) + Fx * lf * ca.sin(delta) - Fyr * lr) / Iz)
+        dn       = dt * (vx * ca.sin(chi) + vy * ca.cos(chi))
+        dchi     = dt * dpsi - kappa
+        ddelta_s = dt * ddelta
+        
+        # with respect to t
+        dvx_t    = ((Fx - Fyf * ca.sin(delta)) / m + dpsi * vy)
+        dvy_t    = ((Fyf * ca.cos(delta) + Fyr) / m - dpsi * vx)
+        ddpsi_t  = ((Fyf * lf * ca.cos(delta) + Fx * lf * ca.sin(delta) - Fyr * lr) / Iz)
+        dn_t     = (vx * ca.sin(chi) + vy * ca.cos(chi))
+        dchi_t   = dpsi - kappa / dt
+        ddelta_t = ddelta
 
         # Model equations
-        dx = ca.vertcat(dvx, dvy, ddpsi, dn, dchi, ddelta) / self.x_s
+        dx = ca.vertcat(dvx, dvy, ddpsi, dn, dchi, ddelta_s) / self.x_s
+        dx_t = ca.vertcat(dvx_t, dvy_t, ddpsi_t, dn_t, dchi_t, ddelta_t)
+        # Car Info
+        Fxf = 0.0
+        Fxr = Fx
+        carinfo = ca.vertcat(Fzf, Fzr, Fxf, Fxr, Fyf, Fyr)
 
         # Objective term
         # L = dt
@@ -111,7 +125,11 @@ class Bi3dofddelta:
 
         # Continuous time dynamics
         self.f = ca.Function('f', [x, u, kappa], [dx, L, dt], ['x', 'u', 'kappa'], ['dx', 'L', 'dt'])
-
+        # time derivative information (dstate)
+        self.f_d = ca.Function('f_d', [x, u, kappa], [dx_t], ['x', 'u', 'kappa'], ['dx_t'])
+        # Car Info (forces)
+        self.f_carinfo = ca.Function('f_carinfo', [x, u], [carinfo], ['x', 'u'], ['carinfo'])
+        
         ############################################################
         # Init and Guesses #########################################
         ############################################################
