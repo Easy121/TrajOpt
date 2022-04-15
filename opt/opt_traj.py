@@ -8,6 +8,7 @@ All Rights Reserved.
 from . import calc
 # new model added here
 from .model.bi_3dof_ddelta import Bi3dofddelta
+from .model.b3dc_LT import B3dcLT
 
 import time
 import sys
@@ -29,10 +30,13 @@ class Trajectory_Opt:
         # from config
         self.nx = config["nx"]
         self.nu = config["nu"]
+        self.pc = config["pc"]
         
         # new model added here
         if model_type == 'bi_3dof_ddelta':
             self.model = Bi3dofddelta(ref, config)
+        elif model_type == 'b3dc_LT':
+            self.model = B3dcLT(ref, config)
         
         
     def optimize(self):
@@ -192,6 +196,11 @@ class Trajectory_Opt:
             g.append(Xk_end-Xk)  # compact form
             lbg.append([0.0] * self.nx)
             ubg.append([0.0] * self.nx)
+            # Check other constraint
+            if self.pc == True:
+                g.append(self.model.f_g(Xk, Uk))
+                lbg.append(self.model.getConstraintMin())
+                ubg.append(self.model.getConstraintMax())
 
         # Concatenate vectors
         w = ca.vertcat(*w)
