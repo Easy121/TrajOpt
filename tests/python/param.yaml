@@ -1,0 +1,102 @@
+vehicle:
+  # Paramters
+  mt:       230.0  # Vehicle total mass
+  Iz:       138.53  # Vehicle inertia about $z$ axis
+  g:        9.81  # Gravitational acceleration
+
+  # Dimensions of vehicle 
+  l:        1.56  # Wheelbase
+  lf:       0.858  # CoG to front axle distance
+  lr:       0.702 # CoG to rear axle distance
+  h:        0.34  # CoG vertical position
+  wf:       1.22  # Front track width
+  wf_half:  0.61  # Half of front track width
+  wr:       1.18  # Rear track width
+  wr_half:  0.59  # Half of rear track width
+
+  # Positions of wheels
+  x:        [0.858, 0.858, -0.702, -0.702]
+  y:        [0.61, -0.61, 0.59, -0.59]
+
+  # Aerodynamcis
+  Cd:       0.85  # Drag coefficient
+  Cl:       [0.263, 0.787]  # Front and rear lift coefficient
+  rho:      1.162  # Mass density of air
+  A:        0.783  # Vehicle effective area
+
+
+steering:
+  sr:       0.409  # Rack length
+  st:       0.375  # Tie rod length
+  sa:       0.0703  # Steering arm length
+  sk:       1.152  # Steering knuckles distanc
+  rp:       0.015  #  Pinion radius
+  D:        0.0377  # Distance between front axis and rack
+
+  # Initial beta
+  DP_init:    [0.0, 0.0]  # no rotation, DP_init is zero
+
+  # Two geometric length.
+  l1_init:    [0.3715, 0.3715]
+  l2_init:    [0.3734, 0.3734]
+
+  # The angle of the steering arm.
+  beta_init:  [0.029634372722598, 0.029634372722598]
+
+  # Steering ratio (delta_steering / delta_wheel) 
+  SR: 5.189
+
+  # velocity ratio of motor reduction (omega_{motoroutput}/omega_{motor})
+  VR: 4.3
+
+  # (m) distance travelled of screw head with one rotation of screw
+  p: 0.005
+
+  # (rpm) motor nominal speed
+  omega_max: 5680
+
+  # (rpm) motor operation speed
+  omega_ope: 1000
+
+
+wheel:
+  # Paramters
+  J:        0.1701  # Wheel rotational inertia.
+  R:        0.2186  # Wheel effective redius. 
+
+  mu:       0.3  # normally 1, 0.3 for low adhesion
+
+  # All tires are assumed identical. 
+  # Longitudinal
+  Bx:       14.78
+  Cx:       1.33
+  Dx:       2.339
+  Ex:       0.3623
+
+  # Lateral 
+  By:       9.882
+  Cy:       1.111
+  Dy:       -2.559
+  Ey:       0.2949
+
+  # Combined Slip
+  # Long Combined Slip
+  Bxa:      5.0933
+  Cxa:      1.1092
+  Exa:      -1.9963
+  # Lat Combined Slip
+  Byk:      9.0327
+  Cyk:      0.7789
+  Eyk:      -2.733
+
+
+driving:
+  a_max: 10  # (m/s^2) maximum acceleration
+  T_max: 160  # (Nm) maximal peak motor torque for one motor  
+  T_con: 80  # (Nm) continuous motor torque for one motor 
+  VR:    3.93  # velocity ratio of transmission (omega_{driver}/omega_{driven})
+
+  
+braking:
+  r_f: 0.7  # brake pressure distrubution to the front 
+  r_r: 0.3  # brake pressure distrubution to the rear

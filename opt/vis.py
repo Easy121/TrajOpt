@@ -47,7 +47,6 @@ class Plotter():
         
         if self.mode == 'normal':
             self.simulator  = simulator
-            # MPC step is assumed the same with ctr_step
             self.MPC_step   = simulator.MPC_step
             self.ctr_step   = simulator.ctr_step
             self.sim_step   = simulator.sim_step
@@ -758,6 +757,13 @@ class Plotter():
         if self.carinfo_arch.size != 0 and self.solver_addition_arch.size != 0:
             # The complete form
             np.savez(path, 
+                     H = self.H,
+                     Hc = self.Hc,
+                     n = self.n,
+                     m = self.m,
+                     MPC_step = self.MPC_step,
+                     ctr_step = self.ctr_step,
+                     sim_step = self.sim_step,
                      t_sequence = self.t_sequence,
                      t_ctrl_sequence = self.t_ctrl_sequence,
                      x_arch=self.x_arch, 
@@ -769,6 +775,13 @@ class Plotter():
         elif self.carinfo_arch.size == 0 and self.solver_addition_arch.size != 0:
             # no carinfo
             np.savez(path, 
+                     H = self.H,
+                     Hc = self.Hc,
+                     n = self.n,
+                     m = self.m,
+                     MPC_step = self.MPC_step,
+                     ctr_step = self.ctr_step,
+                     sim_step = self.sim_step,
                      t_sequence = self.t_sequence,
                      t_ctrl_sequence = self.t_ctrl_sequence,
                      x_arch=self.x_arch, 
@@ -779,6 +792,13 @@ class Plotter():
         elif self.carinfo_arch.size != 0 and self.solver_addition_arch.size == 0:
             # no solver addition
             np.savez(path, 
+                     H = self.H,
+                     Hc = self.Hc,
+                     n = self.n,
+                     m = self.m,
+                     MPC_step = self.MPC_step,
+                     ctr_step = self.ctr_step,
+                     sim_step = self.sim_step,
                      t_sequence = self.t_sequence,
                      t_ctrl_sequence = self.t_ctrl_sequence,
                      x_arch=self.x_arch, 
@@ -789,6 +809,13 @@ class Plotter():
         else:
             # basic form
             np.savez(path, 
+                     H = self.H,
+                     Hc = self.Hc,
+                     n = self.n,
+                     m = self.m,
+                     MPC_step = self.MPC_step,
+                     ctr_step = self.ctr_step,
+                     sim_step = self.sim_step,
                      t_sequence = self.t_sequence,
                      t_ctrl_sequence = self.t_ctrl_sequence,
                      x_arch=self.x_arch, 

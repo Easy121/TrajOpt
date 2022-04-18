@@ -2,6 +2,8 @@
 Copyright (C) 2022:
 - Zijun Guo <guozijuneasy@163.com>
 All Rights Reserved.
+Vehicle model based on bi_3dof_ddelta.py
+Features load transfer, nonlinear tire model and friction ellipse constraints
 """
 
 
@@ -112,7 +114,6 @@ class B3dcLT:
         ddpsi    = dt * ((Fyf * lf * ca.cos(delta) + Fx * lf * ca.sin(delta) - Fyr * lr) / Iz)
         dn       = dt * (vx * ca.sin(chi) + vy * ca.cos(chi))
         dchi     = dt * dpsi - kappa
-        ddelta_s = dt * ddelta
         ddelta_s = dt * ddelta
         dT_s     = dt * dT
         

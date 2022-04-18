@@ -1,6 +1,6 @@
 """
 A test for minimum time optimization
-It the simple 3dof model for equality constraints
+Based on simple 3dof model, nonlineararity added
 """
 
 

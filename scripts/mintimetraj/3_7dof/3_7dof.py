@@ -1,6 +1,6 @@
 """
 A test for minimum time optimization
-Simple 3dof model
+7dof model used in simulation
 """
 
 
@@ -27,7 +27,6 @@ CL = {'BLU': np.array([0, 114, 189])/255,
 """ Path """
 
 path_to_reference = os.path.join(os.path.abspath(os.path.dirname(__file__)), '../../referenceline/data/reference_center_sparse.yaml')
-# path_to_reference = os.path.join(os.path.abspath(os.path.dirname(__file__)), '../../referenceline/data/reference_right_sparse.yaml')
 path_to_track = os.path.join(os.path.abspath(os.path.dirname(__file__)), '../../referenceline/data/track.yaml')
 path_to_config = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'config.yaml')
 path_to_param = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'param.yaml')
@@ -59,7 +58,7 @@ with open(path_to_track, 'r') as stream:
 with open(path_to_config, 'r') as stream:
     config = yaml.safe_load(stream)
 # object
-traj = Trajectory_Opt(ref, config, 'bi_3dof_ddelta')
+traj = Trajectory_Opt(ref, config, 'dual_7dof', param=vehicle_param)
 
 
 """ Optimize """
@@ -91,7 +90,7 @@ plotter.plotActualState(5, 3, '-', xlabel='Time ($s$)', ylabel='$n$ ($m$)', lege
 
 """ input plot """
 plotter.plotActualState(3, 5, '-', xlabel='Time ($s$)', ylabel='$\delta$ ($rad$)', color=CL['ORA'], legend_loc='upper left')
-plotter.plotActualInput(7, 1, '-', xlabel='Time ($s$)', ylabel='$T_l$ ($Nm$)', legend_loc='upper right')
+plotter.plotActualState(7, 6, '-', xlabel='Time ($s$)', ylabel='$T_l$ ($Nm$)', color=CL['ORA'], legend_loc='upper right')
 plotter.plotActualInput(11, 0, '-', xlabel='Time ($s$)', ylabel='$\dot{\delta}$ ($rad/s$)', legend_loc='upper left')
 
 """ dstate plot """

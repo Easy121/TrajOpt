@@ -9,6 +9,7 @@ from . import calc
 # new model added here
 from .model.bi_3dof_ddelta import Bi3dofddelta
 from .model.b3dc_LT import B3dcLT
+from .model.dual_7dof import Dual7dof
 
 import time
 import sys
@@ -18,7 +19,7 @@ import yaml
 
 
 class Trajectory_Opt:
-    def __init__(self, ref, config, model_type) -> None:
+    def __init__(self, ref, config, model_type, param=None) -> None:
         # from ref
         self.x = np.asarray(ref["x"])
         self.y = np.asarray(ref["y"])
@@ -37,6 +38,8 @@ class Trajectory_Opt:
             self.model = Bi3dofddelta(ref, config)
         elif model_type == 'b3dc_LT':
             self.model = B3dcLT(ref, config)
+        elif model_type == 'dual_7dof':
+            self.model = Dual7dof(ref, config, param)
         
         
     def optimize(self):
@@ -221,21 +224,22 @@ class Trajectory_Opt:
         ############################################################
         # Create an NLP solver #####################################
         ############################################################
+        
+        t_solve_start = time.perf_counter()
 
         # solver options
-        # opts = {"expand": True,
-        #         "verbose": True,
-        #         "ipopt.max_iter": 2000,
-        #         "ipopt.tol": 1e-7}
+        opts = {"expand": True,
+                "verbose": True,
+                "ipopt.max_iter": 2000,
+                "ipopt.tol": 1e-7,
+        }
 
         prob = {'f': J, 'x': w, 'g': g}
-        solver = ca.nlpsol('solver', 'ipopt', prob)
+        solver = ca.nlpsol('solver', 'ipopt', prob, opts)
 
         # Function to get x and u trajectories from w
         trajectories = ca.Function('trajectories', [w], [x_opt, u_opt, dx_opt, carinfo_opt, dt_opt], 
                                    ['w'], ['x', 'u', 'dx_opt', 'carinfo_opt', 'dt_opt'])
-
-        t_solve_start = time.perf_counter()
 
         # Solve the NLP
         sol = solver(x0=w0, lbx=lbw, ubx=ubw, lbg=lbg, ubg=ubg)

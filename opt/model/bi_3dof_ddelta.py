@@ -2,6 +2,7 @@
 Copyright (C) 2022:
 - Zijun Guo <guozijuneasy@163.com>
 All Rights Reserved.
+Bicycle 3-DOF vehicle model with steering rate (ddelta) as one input
 """
 
 

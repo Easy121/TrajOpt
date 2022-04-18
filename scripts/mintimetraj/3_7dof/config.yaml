@@ -1,0 +1,6 @@
+nx: 11  # number of state
+nu: 2  # number of control
+pc: false  # constraint or not
+
+mu: 0.3  # road adhesion coefficients
+mu_c: 0.3  # road adhesion coefficients used for constraints
