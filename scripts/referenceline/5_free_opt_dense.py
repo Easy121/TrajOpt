@@ -114,7 +114,7 @@ output = {
     'br': Br.tolist(),
 }
 path_to_output = os.path.join(os.path.abspath(
-    os.path.dirname(__file__)), 'data/' + 'reference' + '.yaml')
+    os.path.dirname(__file__)), 'data/' + 'reference_center' + '.yaml')
 with open(path_to_output, 'w') as stream:
     yaml.dump(output, stream)
 

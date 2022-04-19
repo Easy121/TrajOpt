@@ -107,7 +107,8 @@ print('Total length: ', length_final[-1])
 #     'br': Br.tolist(),
 # }
 # path_to_output = os.path.join(os.path.abspath(
-#     os.path.dirname(__file__)), 'data/' + 'reference_sparse' + '.yaml')
+#     os.path.dirname(__file__)), 'data/' + 'reference_center_sparse' + '.yaml')
+#     os.path.dirname(__file__)), 'data/' + 'reference_7dof' + '.yaml')
 # with open(path_to_output, 'w') as stream:
 #     yaml.dump(output, stream)
 

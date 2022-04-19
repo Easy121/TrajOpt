@@ -1,0 +1,8 @@
+nx: 11  # number of state
+nu: 4  # number of control
+pc: true  # constraint or not
+
+mu: 0.3  # road adhesion coefficients
+mu_c: 0.3  # road adhesion coefficients used for constraints
+
+max_iter: 500  # maximum iteration for solver

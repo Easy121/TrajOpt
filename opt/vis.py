@@ -505,6 +505,56 @@ class Plotter():
         self.ax[ax_index].set_xlabel(xlabel, fontsize=label_fontsize)
         self.ax[ax_index].set_ylabel(ylabel, fontsize=label_fontsize)
         self.ax[ax_index].legend(loc=legend_loc, fontsize=legend_fontsize)
+        
+    def plotOptXYFrame(self, 
+                       ax_index, 
+                       n_index, 
+                       chi_index, 
+                       num_of_frames,  # number of car frames
+                       ref,  # reference data
+                       format,  # format of points and lines
+                       color=CL['BLK'],
+                       xlabel='$X$ ($m$)', ylabel='$Y$ ($m$)', legend='Optimized',
+                       label_fontsize=15, legend_fontsize=10, legend_loc='upper right',
+                       linewidth=3, markersize=8, markeredgewidth=3, set_plot_range=False):
+        x = np.append(np.asarray(ref["x"]), ref["x"][0])
+        y = np.append(np.asarray(ref["y"]), ref["y"][0])
+        theta = np.append(np.asarray(ref["theta"]), ref["theta"][0])
+        data_n = self.x_arch[:, n_index]
+        data_X = x - data_n * np.sin(theta)
+        data_Y = y + data_n * np.cos(theta)
+        data_chi = self.x_arch[:, chi_index]
+        data_Psi = theta + data_chi
+        
+        # race car plot
+        img_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'source/race_car.png')
+        img = mpimg.imread(img_path)
+
+        frames = np.linspace(0, data_X.size, num_of_frames)
+        for frame in frames:
+            frame_index = int(frame)
+            if frame_index == data_X.size:
+                frame_index -= 1
+            self.plotRaceCar(self.ax[ax_index], 
+                             img, 
+                             mtransforms.Affine2D().rotate_deg(
+                                 np.rad2deg(data_Psi[frame_index])).translate(
+                                     data_X[frame_index], data_Y[frame_index]))
+        
+        # orignal plot
+        self.ax[ax_index].plot(data_X[0::self.interval], data_Y[0::self.interval], format, color=color, label=legend, 
+            linewidth=linewidth, markersize=markersize, markeredgewidth=markeredgewidth)
+
+        data = np.hstack((data_X.reshape(-1, 1),data_Y.reshape(-1, 1)))
+        if set_plot_range is True:
+            self.plot_range = self.getPlotRange(data)
+            self.ax[ax_index].set_xlim(self.plot_range[0])
+            self.ax[ax_index].set_ylim(self.plot_range[1])
+        else:
+            self.ax[ax_index].axis('equal')
+        self.ax[ax_index].set_xlabel(xlabel, fontsize=label_fontsize)
+        self.ax[ax_index].set_ylabel(ylabel, fontsize=label_fontsize)
+        self.ax[ax_index].legend(loc=legend_loc, fontsize=legend_fontsize)
 
     # dstate
     def plotActualdState(self, 

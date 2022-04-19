@@ -1,10 +1,8 @@
 """
 A test for minimum time optimization
-7dof model used in simulation without ax and ay (set to 0)
+Real 7dof model
 """
 # TODO
-# * save the result of 2_LT_nonlinear
-# * change state_ and input_guess, relate with k
 # ax ay as input, set equality constraint to them
 
 
@@ -30,7 +28,8 @@ CL = {'BLU': np.array([0, 114, 189])/255,
 
 """ Path """
 
-path_to_reference = os.path.join(os.path.abspath(os.path.dirname(__file__)), '../../referenceline/data/reference_center_sparse.yaml')
+# the interval for reference_7dof is now 0.3
+path_to_reference = os.path.join(os.path.abspath(os.path.dirname(__file__)), '../../referenceline/data/reference_7dof.yaml')
 path_to_track = os.path.join(os.path.abspath(os.path.dirname(__file__)), '../../referenceline/data/track.yaml')
 path_to_config = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'config.yaml')
 path_to_param = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'param.yaml')
@@ -65,7 +64,7 @@ with open(path_to_track, 'r') as stream:
 with open(path_to_config, 'r') as stream:
     config = yaml.safe_load(stream)
 # object
-traj = Trajectory_Opt(ref, config, 'dual_7dof_noa', param=vehicle_param, previous_data=previous_data)
+traj = Trajectory_Opt(ref, config, 'dual_7dof', param=vehicle_param, previous_data=previous_data)
 
 
 """ Optimize """
@@ -131,4 +130,4 @@ vis_t = time.perf_counter() - vis_t0
 print("[TIME] Visualization takes: %.3f s" % vis_t) # CPU seconds elapsed (floating point)
 plt.show()
 
-# plotter.save(os.path.join(os.path.abspath(os.path.dirname(__file__)), '../data/7dof_noa.npz'))
+plotter.save(os.path.join(os.path.abspath(os.path.dirname(__file__)), '../data/7dof.npz'))

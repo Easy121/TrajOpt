@@ -10,6 +10,7 @@ from . import calc
 from .model.bi_3dof_ddelta import Bi3dofddelta
 from .model.b3dc_LT import B3dcLT
 from .model.dual_7dof_noa import Dual7dofnoa
+from .model.dual_7dof import Dual7dof
 
 import time
 import sys
@@ -41,6 +42,8 @@ class Trajectory_Opt:
             self.model = B3dcLT(ref, config)
         elif model_type == 'dual_7dof_noa':
             self.model = Dual7dofnoa(ref, config, param, previous_data)
+        elif model_type == 'dual_7dof':
+            self.model = Dual7dof(ref, config, param, previous_data)
         
         
     def optimize(self):
