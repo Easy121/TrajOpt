@@ -9,7 +9,7 @@ from . import calc
 # new model added here
 from .model.bi_3dof_ddelta import Bi3dofddelta
 from .model.b3dc_LT import B3dcLT
-from .model.dual_7dof import Dual7dof
+from .model.dual_7dof_noa import Dual7dofnoa
 
 import time
 import sys
@@ -19,7 +19,7 @@ import yaml
 
 
 class Trajectory_Opt:
-    def __init__(self, ref, config, model_type, param=None) -> None:
+    def __init__(self, ref, config, model_type, param=None, previous_data=None) -> None:
         # from ref
         self.x = np.asarray(ref["x"])
         self.y = np.asarray(ref["y"])
@@ -32,14 +32,15 @@ class Trajectory_Opt:
         self.nx = config["nx"]
         self.nu = config["nu"]
         self.pc = config["pc"]
+        self.max_iter = config["max_iter"]
         
         # new model added here
         if model_type == 'bi_3dof_ddelta':
             self.model = Bi3dofddelta(ref, config)
         elif model_type == 'b3dc_LT':
             self.model = B3dcLT(ref, config)
-        elif model_type == 'dual_7dof':
-            self.model = Dual7dof(ref, config, param)
+        elif model_type == 'dual_7dof_noa':
+            self.model = Dual7dofnoa(ref, config, param, previous_data)
         
         
     def optimize(self):
@@ -142,7 +143,7 @@ class Trajectory_Opt:
             # * dimension check
             lbw.append(self.model.getInputMin(k))
             ubw.append(self.model.getInputMax(k))
-            w0.append(self.model.input_guess)
+            w0.append(self.model.getInputGuess(k))
 
             # State at collocation points
             Xc = []
@@ -153,7 +154,7 @@ class Trajectory_Opt:
                 lbw.append([-np.inf] * self.nx)
                 ubw.append([np.inf] * self.nx)
                 # * dimension check
-                w0.append(self.model.state_guess)
+                w0.append(self.model.getStateGuess(k))
 
             # Loop over collocation points
             Xk_end = D[0] * Xk
@@ -189,7 +190,7 @@ class Trajectory_Opt:
             w.append(Xk)
             lbw.append(self.model.getStateMin(k))
             ubw.append(self.model.getStateMax(k))
-            w0.append(self.model.state_guess)
+            w0.append(self.model.getStateGuess(k))
             x_opt.append(Xk * self.model.x_s)
             u_opt.append(Uk * self.model.u_s)
             dx_opt.append(self.model.f_d(Xk, Uk, kappa_interp(k)))
@@ -230,7 +231,7 @@ class Trajectory_Opt:
         # solver options
         opts = {"expand": True,
                 "verbose": True,
-                "ipopt.max_iter": 2000,
+                "ipopt.max_iter": self.max_iter,
                 "ipopt.tol": 1e-7,
         }
 
@@ -246,9 +247,9 @@ class Trajectory_Opt:
         
         t_solve_end = time.perf_counter()
         
-        if solver.stats()['return_status'] != 'Solve_Succeeded':
-            print('\033[91m' + 'ERROR: Optimization did not succeed!' + '\033[0m')
-            sys.exit(1)
+        # if solver.stats()['return_status'] != 'Solve_Succeeded':
+        #     print('\033[91m' + 'ERROR: Optimization did not succeed!' + '\033[0m')
+        #     sys.exit(1)
         
         x_opt, u_opt, dx_opt, carinfo_opt, dt_opt = trajectories(sol['x'])
         self.x_opt = x_opt.full().T # to numpy array

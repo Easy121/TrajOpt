@@ -754,72 +754,90 @@ class Plotter():
     ###################################
 
     def save(self, path):
-        if self.carinfo_arch.size != 0 and self.solver_addition_arch.size != 0:
-            # The complete form
-            np.savez(path, 
-                     H = self.H,
-                     Hc = self.Hc,
-                     n = self.n,
-                     m = self.m,
-                     MPC_step = self.MPC_step,
-                     ctr_step = self.ctr_step,
-                     sim_step = self.sim_step,
-                     t_sequence = self.t_sequence,
-                     t_ctrl_sequence = self.t_ctrl_sequence,
-                     x_arch=self.x_arch, 
-                     u_arch=self.u_arch,
-                     xPred_arch=self.xPred_arch, 
-                     uOpt_arch=self.uOpt_arch,
-                     carinfo_arch=self.carinfo_arch,
-                     solver_addition_arch=self.solver_addition_arch)
-        elif self.carinfo_arch.size == 0 and self.solver_addition_arch.size != 0:
-            # no carinfo
-            np.savez(path, 
-                     H = self.H,
-                     Hc = self.Hc,
-                     n = self.n,
-                     m = self.m,
-                     MPC_step = self.MPC_step,
-                     ctr_step = self.ctr_step,
-                     sim_step = self.sim_step,
-                     t_sequence = self.t_sequence,
-                     t_ctrl_sequence = self.t_ctrl_sequence,
-                     x_arch=self.x_arch, 
-                     u_arch=self.u_arch,
-                     xPred_arch=self.xPred_arch, 
-                     uOpt_arch=self.uOpt_arch,
-                     solver_addition_arch=self.solver_addition_arch)
-        elif self.carinfo_arch.size != 0 and self.solver_addition_arch.size == 0:
-            # no solver addition
-            np.savez(path, 
-                     H = self.H,
-                     Hc = self.Hc,
-                     n = self.n,
-                     m = self.m,
-                     MPC_step = self.MPC_step,
-                     ctr_step = self.ctr_step,
-                     sim_step = self.sim_step,
-                     t_sequence = self.t_sequence,
-                     t_ctrl_sequence = self.t_ctrl_sequence,
-                     x_arch=self.x_arch, 
-                     u_arch=self.u_arch,
-                     xPred_arch=self.xPred_arch, 
-                     uOpt_arch=self.uOpt_arch,
-                     carinfo_arch=self.carinfo_arch)
+        if self.mode == 'normal':
+            if self.carinfo_arch.size != 0 and self.solver_addition_arch.size != 0:
+                # The complete form
+                np.savez(path, 
+                        H = self.H,
+                        Hc = self.Hc,
+                        n = self.n,
+                        m = self.m,
+                        MPC_step = self.MPC_step,
+                        ctr_step = self.ctr_step,
+                        sim_step = self.sim_step,
+                        t_sequence = self.t_sequence,
+                        t_ctrl_sequence = self.t_ctrl_sequence,
+                        x_arch=self.x_arch, 
+                        dx_arch=self.dx_arch, 
+                        u_arch=self.u_arch,
+                        xPred_arch=self.xPred_arch, 
+                        uOpt_arch=self.uOpt_arch,
+                        carinfo_arch=self.carinfo_arch,
+                        solver_addition_arch=self.solver_addition_arch,
+                )
+            elif self.carinfo_arch.size == 0 and self.solver_addition_arch.size != 0:
+                # no carinfo
+                np.savez(path, 
+                        H = self.H,
+                        Hc = self.Hc,
+                        n = self.n,
+                        m = self.m,
+                        MPC_step = self.MPC_step,
+                        ctr_step = self.ctr_step,
+                        sim_step = self.sim_step,
+                        t_sequence = self.t_sequence,
+                        t_ctrl_sequence = self.t_ctrl_sequence,
+                        x_arch=self.x_arch, 
+                        dx_arch=self.dx_arch, 
+                        u_arch=self.u_arch,
+                        xPred_arch=self.xPred_arch, 
+                        uOpt_arch=self.uOpt_arch,
+                        solver_addition_arch=self.solver_addition_arch,
+                )
+            elif self.carinfo_arch.size != 0 and self.solver_addition_arch.size == 0:
+                # no solver addition
+                np.savez(path, 
+                        H = self.H,
+                        Hc = self.Hc,
+                        n = self.n,
+                        m = self.m,
+                        MPC_step = self.MPC_step,
+                        ctr_step = self.ctr_step,
+                        sim_step = self.sim_step,
+                        t_sequence = self.t_sequence,
+                        t_ctrl_sequence = self.t_ctrl_sequence,
+                        x_arch=self.x_arch, 
+                        dx_arch=self.dx_arch, 
+                        u_arch=self.u_arch,
+                        xPred_arch=self.xPred_arch, 
+                        uOpt_arch=self.uOpt_arch,
+                        carinfo_arch=self.carinfo_arch,
+                )
+            else:
+                # basic form
+                np.savez(path, 
+                        H = self.H,
+                        Hc = self.Hc,
+                        n = self.n,
+                        m = self.m,
+                        MPC_step = self.MPC_step,
+                        ctr_step = self.ctr_step,
+                        sim_step = self.sim_step,
+                        t_sequence = self.t_sequence,
+                        t_ctrl_sequence = self.t_ctrl_sequence,
+                        x_arch=self.x_arch, 
+                        dx_arch=self.dx_arch, 
+                        u_arch=self.u_arch,
+                        xPred_arch=self.xPred_arch, 
+                        uOpt_arch=self.uOpt_arch,
+                )
         else:
-            # basic form
+            # for use in TrajOpt
             np.savez(path, 
-                     H = self.H,
-                     Hc = self.Hc,
-                     n = self.n,
-                     m = self.m,
-                     MPC_step = self.MPC_step,
-                     ctr_step = self.ctr_step,
-                     sim_step = self.sim_step,
-                     t_sequence = self.t_sequence,
-                     t_ctrl_sequence = self.t_ctrl_sequence,
-                     x_arch=self.x_arch, 
-                     u_arch=self.u_arch,
-                     xPred_arch=self.xPred_arch, 
-                     uOpt_arch=self.uOpt_arch)
+                    t_sequence = self.t_sequence,
+                    x_arch=self.x_arch, 
+                    dx_arch=self.dx_arch, 
+                    u_arch=self.u_arch,
+                    carinfo_arch=self.carinfo_arch,
+            )
         

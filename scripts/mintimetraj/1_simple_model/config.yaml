@@ -4,3 +4,5 @@ pc: false  # number of constraint
 
 mu: 1  # road adhesion coefficients
 mu_c: 1  # road adhesion coefficients used for constraints
+
+max_iter: 500  # maximum iteration for solver

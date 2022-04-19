@@ -3,6 +3,7 @@ Copyright (C) 2022:
 - Zijun Guo <guozijuneasy@163.com>
 All Rights Reserved.
 Dual-track 7-DOF vehicle dynamics model with combined slip Magic Formula tire model
+No acceleration that influences the load transfer (ax ay set to 0)
 """
 
 
@@ -93,8 +94,8 @@ class Param:
     driving: Driving
 
 
-class Dual7dof:
-    def __init__(self, ref, config, param) -> None:
+class Dual7dofnoa:
+    def __init__(self, ref, config, param, previous_data) -> None:
         # from ref
         self.bl = np.asarray(ref["bl"])  # +
         self.br = np.asarray(ref["br"])  # -
@@ -107,6 +108,11 @@ class Dual7dof:
         
         # from param
         self.setParameters(param)
+        
+        # from previous_data
+        # use simpler solutions as guesses
+        # * using previous data as guess is not so efficient
+        self.previous_data = previous_data
         
         ############################################################
         # Model Definition #########################################
@@ -174,8 +180,10 @@ class Dual7dof:
         
         # additional 
         kappa = ca.SX.sym('kappa')  # curvature
-        ax = ca.SX.sym('ax')  # acceleration
-        ay = ca.SX.sym('ay')  # acceleration
+        # ax = ca.SX.sym('ax')  # acceleration
+        # ay = ca.SX.sym('ay')  # acceleration
+        ax = 0.0
+        ay = 0.0
         
         ############################################################
         # Vehicle Model ############################################
@@ -248,10 +256,10 @@ class Dual7dof:
         # convert to s-based dynamics instead of t-based
         dt    = (1 - n * kappa) / (vx * ca.cos(chi) - vy * ca.sin(chi))  # 1/ds or dt/ds integrate to get t
         
-        dvx        = dt * (ca.sum1(Fx_i) + Fres) / self.param.vehicle.mt + dpsi * vy
-        dvy        = dt * ca.sum1(Fy_i) / self.param.vehicle.mt - dpsi * vx
-        ddpsi      = dt * ca.sum1((Fy_i * self.param.vehicle.x - Fx_i * self.param.vehicle.y)) / self.param.vehicle.Iz
-        domega_i_s = dt * (T_i - Fxw_i * self.param.wheel.R) / self.param.wheel.J
+        dvx        = dt * ((ca.sum1(Fx_i) + Fres) / self.param.vehicle.mt + dpsi * vy)
+        dvy        = dt * (ca.sum1(Fy_i) / self.param.vehicle.mt - dpsi * vx)
+        ddpsi      = dt * (ca.sum1((Fy_i * self.param.vehicle.x - Fx_i * self.param.vehicle.y)) / self.param.vehicle.Iz)
+        domega_i_s = dt * ((T_i - Fxw_i * self.param.wheel.R) / self.param.wheel.J)
         dn         = dt * (vx * ca.sin(chi) + vy * ca.cos(chi))
         dchi       = dt * dpsi - kappa
         ddelta_s   = dt * ddelta
@@ -267,9 +275,9 @@ class Dual7dof:
         ddelta_t   = ddelta
         dT_t       = dT
         
-        # for load transfer
-        ax_out = dvx_t - dpsi * vy
-        ay_out = dvy_t + dpsi * vx
+        # # for load transfer
+        # ax_out = dvx_t - dpsi * vy
+        # ay_out = dvy_t + dpsi * vx
 
         """ Model equations """
         dx = ca.vertcat(dvx, dvy, ddpsi, domega_i_s, dn, dchi, ddelta_s, dT_s) / self.x_s
@@ -284,42 +292,45 @@ class Dual7dof:
 
         """ Functions """
         # Continuous time dynamics (the real one is kept in self.f)
-        self.f_f = ca.Function('f', [x, u, kappa, ax, ay], [dx, L, dt, ax_out, ay_out], 
-                               ['x', 'u', 'kappa', 'ax', 'ay'], ['dx', 'L', 'dt', 'ax_out', 'ay_out'])
+        self.f = ca.Function('f', [x, u, kappa], [dx, L, dt], ['x', 'u', 'kappa'], ['dx', 'L', 'dt'])
         # Time derivative information (dstate)
         self.f_d = ca.Function('f_d', [x, u, kappa], [dx_t], ['x', 'u', 'kappa'], ['dx_t'])
         # Car Info (forces)
         self.f_carinfo = ca.Function('f_carinfo', [x, u], [carinfo], ['x', 'u'], ['carinfo'])
         
         ############################################################
-        # Init and Guesses #########################################
+        # Inits ####################################################
         ############################################################
+        # * dimension check
         
-        # init
-        self.ax = 0.0
-        self.ay = 0.0
-        self.state_init  = [1.0 / self.vx_s, 0.0, 0.0, 
-                            1.0 / self.param.wheel.R / self.omega_s, 1.0 / self.param.wheel.R / self.omega_s,
-                            1.0 / self.param.wheel.R / self.omega_s, 1.0 / self.param.wheel.R / self.omega_s, 
+        vx_init = 5.0
+        self.state_init  = [vx_init / self.vx_s, 0.0, 0.0, 
+                            vx_init / self.param.wheel.R / self.omega_s, vx_init / self.param.wheel.R / self.omega_s,
+                            vx_init / self.param.wheel.R / self.omega_s, vx_init / self.param.wheel.R / self.omega_s, 
                             (self.bl[0]+self.br[0])/2 / self.n_s, 0.0, 0.0, 0.0
         ]
-        # state
-        self.state_guess = [5.0 / self.vx_s, 0.0, 0.0, 
-                            25 / self.omega_s, 25 / self.omega_s, 25 / self.omega_s, 25 / self.omega_s, 
-                            (self.bl[0]+self.br[0])/2 / self.n_s, 0.0, 0.0, 0.0
+        
+    ############################################################
+    # Guesses ##################################################
+    ############################################################
+    # * dimension check
+    
+    def getStateGuess(self, k):
+        # * using previous data as guess is not so efficient
+        # guess_simple = self.previous_data['x_arch'][k, :]
+        # guess = np.concatenate((guess_simple[:3], 
+        #                         [guess_simple[0] / self.param.wheel.R]*4, 
+        #                         guess_simple[3:])) / self.x_s
+        # return guess.tolist()
+        return [5.0 / self.vx_s, 0.0, 0.0, 
+                25 / self.omega_s, 25 / self.omega_s, 25 / self.omega_s, 25 / self.omega_s, 
+                (self.bl[0]+self.br[0])/2 / self.n_s, 0.0, 0.0, 0.0
         ]
-        # input
-        self.input_guess = [0.0] * self.nu
     
-    ############################################################
-    # Parameters ###############################################
-    ############################################################
-    
-    def f(self, x, u, kappa):
-        dx, L, dt, ax_temp, ay_temp = self.f_f(x, u, kappa, self.ax, self.ay)
-        # self.ax = ax_temp
-        # self.ay = ay_temp
-        return dx, L, dt
+    def getInputGuess(self, k):
+        # guess_simple = self.previous_data['u_arch'][k, :] / self.u_s
+        # return guess_simple.tolist()
+        return [0.0] * self.nu
     
     ############################################################
     # Parameters ###############################################

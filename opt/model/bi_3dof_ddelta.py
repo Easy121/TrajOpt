@@ -133,15 +133,22 @@ class Bi3dofddelta:
         self.f_carinfo = ca.Function('f_carinfo', [x, u], [carinfo], ['x', 'u'], ['carinfo'])
         
         ############################################################
-        # Init and Guesses #########################################
+        # Inits ####################################################
         ############################################################
+        # * dimension check
         
-        # init
         self.state_init  = [1.0 / self.vx_s, 0.0, 0.0, (self.bl[0]+self.br[0])/2 / self.n_s, 0.0, 0.0]
-        # state
-        self.state_guess = [5.0 / self.vx_s, 0.0, 0.0, (self.bl[0]+self.br[0])/2 / self.n_s, 0.0, 0.0]
-        # input
-        self.input_guess = [0.0] * self.nu
+        
+    ############################################################
+    # Guesses ##################################################
+    ############################################################
+    # * dimension check
+    
+    def getStateGuess(self, k):
+        return [1.0 / self.vx_s, 0.0, 0.0, (self.bl[0]+self.br[0])/2 / self.n_s, 0.0, 0.0]
+    
+    def getInputGuess(self, k):
+        return [0.0] * self.nu
         
     ############################################################
     # Bounds ###################################################
