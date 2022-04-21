@@ -1,20 +1,17 @@
+""" 
+Figures of 7dof, run on IPC
+The optimization took such a long time. Therefore, the visualization is better based on saved data
 """
-A test for minimum time optimization
-Real 7dof model
-"""
-# TODO
-# ax ay as input, set equality constraint to them
 
 
-from opt.calc import *
-from opt.opt import *
-from opt.opt_traj import *
 from opt.vis import *
 
 import os
+import numpy as np
 import matplotlib.pyplot as plt
 plt.rcParams.update({
-    "font.family": "DeJavu Serif",
+    "text.usetex": True,
+    "font.family": "serif",
     "font.serif": ["Computer Modern Roman"],})
 CL = {'BLU': np.array([0, 114, 189])/255,
       'RED': np.array([217, 83, 25])/255,
@@ -25,65 +22,41 @@ CL = {'BLU': np.array([0, 114, 189])/255,
       'BLK': np.array([0, 0, 0])/255,
       'WHT': np.array([255, 255, 255])/255,}
 
-
-""" Path """
-
-# the interval for reference_7dof is now 0.3
+""" Data loading """
+# * remember to change
+# 1. 0.3m interval
 path_to_reference = os.path.join(os.path.abspath(os.path.dirname(__file__)), '../../referenceline/data/reference_7dof_1.yaml')
 path_to_track = os.path.join(os.path.abspath(os.path.dirname(__file__)), '../../referenceline/data/track.yaml')
-path_to_config = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'config.yaml')
-path_to_param = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'param.yaml')
-path_to_previous_data = os.path.join(os.path.abspath(os.path.dirname(__file__)), '../data/LT_nonlinear.npz')
+path_to_config = os.path.join(os.path.abspath(os.path.dirname(__file__)), '../4_7dof/config.yaml')
+path_to_param = os.path.join(os.path.abspath(os.path.dirname(__file__)), '../4_7dof/param.yaml')
+# * remember to change
+# 1. unconstarined omega
+path_to_data = os.path.join(os.path.abspath(os.path.dirname(__file__)), '7dof_1.npz')
 
-
-""" Data """
-
-# mu for Vis
+data = np.load(path_to_data)
+# Import reference
+with open(path_to_reference, 'r') as stream:
+    ref = yaml.safe_load(stream)
+    
 with open(path_to_config) as stream:
     solver_config = yaml.safe_load(stream)
 mu = solver_config['mu']
 mu_c = solver_config['mu_c']
+
 # Dx and Dy for friction ellipse
 with open(path_to_param) as stream:
     vehicle_param = yaml.safe_load(stream)
 Dx = np.abs(vehicle_param['wheel']['Dx'])
 Dy = np.abs(vehicle_param['wheel']['Dy'])
-# Simpler solution
-previous_data = np.load(path_to_previous_data)
 
-
-""" Construct Problem """
-
-# Import reference
-with open(path_to_reference, 'r') as stream:
-    ref = yaml.safe_load(stream)
-# Import track
-with open(path_to_track, 'r') as stream:
-    track = yaml.safe_load(stream)
-# Import config
-with open(path_to_config, 'r') as stream:
-    config = yaml.safe_load(stream)
-# object
-traj = Trajectory_Opt(ref, config, 'dual_7dof', param=vehicle_param, previous_data=previous_data)
-
-
-""" Optimize """
-
-traj.optimize()
-
-
-""" Plot """
-# * vis.py is the replicate of visual.py from GMPCPlatform, this is an efficient workaround, please keep updated
-
-vis_t0 = time.perf_counter()
-
-# parse data
+""" Vis """
+# give a full plot
 plotter = Plotter(None, None, 12, width_ratios=[0, 0], figsize=(24, 12), mode='debug', interval=1)
-plotter.t_sequence = traj.t_opt
-plotter.x_arch = traj.x_opt
-plotter.u_arch = traj.u_opt
-plotter.dx_arch = traj.dx_opt
-plotter.carinfo_arch = traj.carinfo_opt
+plotter.t_sequence = data['t_sequence']
+plotter.x_arch = data['x_arch']
+plotter.u_arch = data['u_arch']
+plotter.dx_arch = data['dx_arch']
+plotter.carinfo_arch = data['carinfo_arch']
 
 """ state plot """
 plotter.plotTrack(0, path_to_track)
@@ -126,8 +99,4 @@ plotter.plotActualTireForceDlessEnd(11, 5, 9, 1, '+', zorder=5, color=CL['WHT'],
 plotter.plotActualTireForceDlessEnd(11, 6, 10, 2, '+', zorder=5, color=CL['WHT'], legend_loc='upper right')
 plotter.plotActualTireForceDlessEnd(11, 7, 11, 3, '+', zorder=5, color=CL['WHT'], legend_loc='upper right')
 
-vis_t = time.perf_counter() - vis_t0
-print("[TIME] Visualization takes: %.3f s" % vis_t) # CPU seconds elapsed (floating point)
 plt.show()
-
-plotter.save(os.path.join(os.path.abspath(os.path.dirname(__file__)), '../data/7dof.npz'))
