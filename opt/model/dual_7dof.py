@@ -432,10 +432,10 @@ class Dual7dof:
             0.0 / self.vx_s,  # vx
             -np.inf,  # vy 
             -np.inf,  # dpsi
-            -np.inf,  # omega
-            -np.inf,  # omega
-            -np.inf,  # omega
-            -np.inf,  # omega
+            0.0,  # omega
+            0.0,  # omega
+            0.0,  # omega
+            0.0,  # omega
             self.br[k] / self.n_s,  # n
             -np.inf,  # chi
             -0.43 / self.delta_s,  # delta
@@ -448,10 +448,10 @@ class Dual7dof:
             10.0 / self.vx_s,  # vx
             np.inf,  # vy 
             np.inf,  # dpsi
-            np.inf,  # omega
-            np.inf,  # omega
-            np.inf,  # omega
-            np.inf,  # omega
+            1.0,  # omega
+            1.0,  # omega
+            1.0,  # omega
+            1.0,  # omega
             self.bl[k] / self.n_s,  # n
             np.inf,  # chi
             0.43 / self.delta_s,  # delta

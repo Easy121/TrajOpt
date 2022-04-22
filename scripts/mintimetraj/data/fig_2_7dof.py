@@ -31,7 +31,9 @@ path_to_config = os.path.join(os.path.abspath(os.path.dirname(__file__)), '../4_
 path_to_param = os.path.join(os.path.abspath(os.path.dirname(__file__)), '../4_7dof/param.yaml')
 # * remember to change
 # 1. unconstarined omega
-path_to_data = os.path.join(os.path.abspath(os.path.dirname(__file__)), '7dof_1.npz')
+# 2. constarined omega (good)
+# path_to_data = os.path.join(os.path.abspath(os.path.dirname(__file__)), '7dof_1.npz')
+path_to_data = os.path.join(os.path.abspath(os.path.dirname(__file__)), '7dof_2.npz')
 
 data = np.load(path_to_data)
 # Import reference
@@ -84,9 +86,9 @@ plotter.plotActualAx(9, 0, 1, 2, '-', omit_start=1, xlabel='Time ($s$)', ylabel=
 plotter.plotActualAy(9, 1, 0, 2, '-', omit_start=1, xlabel='Time ($s$)', ylabel='$a$ ($m/s^2$)', color=CL['BLU'], legend='$a_y$', legend_loc='upper right')
 # Vertical Tire force
 plotter.plotActualCarInfo(10, 0, '-', omit_start=1, xlabel='Time ($s$)', ylabel='$F_z$ ($N$)', color=CL['RED'], legend='$F_{z,fl}$', legend_loc='upper right')
-plotter.plotActualCarInfo(10, 1, '-', omit_start=1, xlabel='Time ($s$)', ylabel='$F_z$ ($N$)', color=CL['BLU'], legend='$F_{z,fr}$', legend_loc='upper right')
+plotter.plotActualCarInfo(10, 1, '-', omit_start=1, xlabel='Time ($s$)', ylabel='$F_z$ ($N$)', color=CL['RED']*0.7, legend='$F_{z,fr}$', legend_loc='upper right')
 plotter.plotActualCarInfo(10, 2, '-', omit_start=1, xlabel='Time ($s$)', ylabel='$F_z$ ($N$)', color=CL['BLU'], legend='$F_{z,rl}$', legend_loc='upper right')
-plotter.plotActualCarInfo(10, 3, '-', omit_start=1, xlabel='Time ($s$)', ylabel='$F_z$ ($N$)', color=CL['BLU'], legend='$F_{z,rf}$', legend_loc='upper right')
+plotter.plotActualCarInfo(10, 3, '-', omit_start=1, xlabel='Time ($s$)', ylabel='$F_z$ ($N$)', color=CL['BLU']*0.7, legend='$F_{z,rf}$', legend_loc='upper right')
 # Long. and Lat. Tire force
 plotter.plotFrictionEllipse(11, [Dx, Dy], mu, legend='Fric. Ell.')
 plotter.plotFrictionEllipse(11, [Dx, Dy], mu_c, legend='Constr. Ell.')
