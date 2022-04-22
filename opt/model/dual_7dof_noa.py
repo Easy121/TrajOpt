@@ -303,7 +303,7 @@ class Dual7dofnoa:
         ############################################################
         # * dimension check
         
-        vx_init = 5.0
+        vx_init = 1.0
         self.state_init  = [vx_init / self.vx_s, 0.0, 0.0, 
                             vx_init / self.param.wheel.R / self.omega_s, vx_init / self.param.wheel.R / self.omega_s,
                             vx_init / self.param.wheel.R / self.omega_s, vx_init / self.param.wheel.R / self.omega_s, 

@@ -33,7 +33,7 @@ path_to_reference = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..
 path_to_track = os.path.join(os.path.abspath(os.path.dirname(__file__)), '../../referenceline/data/track.yaml')
 path_to_config = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'config.yaml')
 path_to_param = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'param.yaml')
-path_to_previous_data = os.path.join(os.path.abspath(os.path.dirname(__file__)), '../data/LT_nonlinear.npz')
+path_to_previous_data = os.path.join(os.path.abspath(os.path.dirname(__file__)), '../data/7dof_warm.npz')
 
 
 """ Data """
@@ -130,4 +130,4 @@ vis_t = time.perf_counter() - vis_t0
 print("[TIME] Visualization takes: %.3f s" % vis_t) # CPU seconds elapsed (floating point)
 plt.show()
 
-# plotter.save(os.path.join(os.path.abspath(os.path.dirname(__file__)), '../data/7dof_2.npz'))
+plotter.save(os.path.join(os.path.abspath(os.path.dirname(__file__)), '../data/7dof_2.npz'))

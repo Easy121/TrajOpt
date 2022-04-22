@@ -316,7 +316,7 @@ class Dual7dof:
         ############################################################
         # * dimension check
         
-        vx_init = 5.0
+        vx_init = 1.0
         self.state_init  = [vx_init / self.vx_s, 0.0, 0.0, 
                             vx_init / self.param.wheel.R / self.omega_s, vx_init / self.param.wheel.R / self.omega_s,
                             vx_init / self.param.wheel.R / self.omega_s, vx_init / self.param.wheel.R / self.omega_s, 
@@ -341,7 +341,7 @@ class Dual7dof:
         ]
     
     def getInputGuess(self, k):
-        # guess_simple = self.previous_data['u_arch'][k, :] / self.u_s
+        # guess_simple = np.concatenate((self.previous_data['u_arch'][k, :], [0.0, 0.0])) / self.u_s
         # return guess_simple.tolist()
         return [0.0] * self.nu
     
