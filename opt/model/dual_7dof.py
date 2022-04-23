@@ -428,35 +428,67 @@ class Dual7dof:
     # * dimension check
     
     def getStateMin(self, k):
-        state_min = [
-            0.0 / self.vx_s,  # vx
-            -np.inf,  # vy 
-            -np.inf,  # dpsi
-            0.0,  # omega
-            0.0,  # omega
-            0.0,  # omega
-            0.0,  # omega
-            self.br[k] / self.n_s,  # n
-            -np.inf,  # chi
-            -0.43 / self.delta_s,  # delta
-            -200 / self.T_s,  # T
-        ]
+        # for the starting 10m
+        if k < 34:
+            state_min = [
+                0.0 / self.vx_s,  # vx
+                -np.inf,  # vy 
+                -np.inf,  # dpsi
+                0.0,  # omega
+                0.0,  # omega
+                0.0,  # omega
+                0.0,  # omega
+                self.br[k] / self.n_s,  # n
+                -np.inf,  # chi
+                -0.15 / self.delta_s,  # delta
+                0.0 / self.T_s,  # T
+            ]
+        else:
+            state_min = [
+                0.0 / self.vx_s,  # vx
+                -np.inf,  # vy 
+                -np.inf,  # dpsi
+                0.0,  # omega
+                0.0,  # omega
+                0.0,  # omega
+                0.0,  # omega
+                self.br[k] / self.n_s,  # n
+                -np.inf,  # chi
+                -0.43 / self.delta_s,  # delta
+                -200 / self.T_s,  # T
+            ]
         return state_min
     
     def getStateMax(self, k):
-        state_max = [
-            10.0 / self.vx_s,  # vx
-            np.inf,  # vy 
-            np.inf,  # dpsi
-            1.0,  # omega
-            1.0,  # omega
-            1.0,  # omega
-            1.0,  # omega
-            self.bl[k] / self.n_s,  # n
-            np.inf,  # chi
-            0.43 / self.delta_s,  # delta
-            200 / self.T_s,  # T
-        ]
+        # for the starting 10m
+        if k < 34:
+            state_max = [
+                10.0 / self.vx_s,  # vx
+                np.inf,  # vy 
+                np.inf,  # dpsi
+                1.0,  # omega
+                1.0,  # omega
+                1.0,  # omega
+                1.0,  # omega
+                self.bl[k] / self.n_s,  # n
+                np.inf,  # chi
+                0.15 / self.delta_s,  # delta
+                200 / self.T_s,  # T
+            ]
+        else:
+            state_max = [
+                10.0 / self.vx_s,  # vx
+                np.inf,  # vy 
+                np.inf,  # dpsi
+                1.0,  # omega
+                1.0,  # omega
+                1.0,  # omega
+                1.0,  # omega
+                self.bl[k] / self.n_s,  # n
+                np.inf,  # chi
+                0.43 / self.delta_s,  # delta
+                200 / self.T_s,  # T
+            ]
         return state_max
     
     def getInputMin(self, k):
