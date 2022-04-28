@@ -20,7 +20,9 @@ import yaml
 
 
 class Trajectory_Opt:
-    def __init__(self, ref, config, model_type, param=None, previous_data=None) -> None:
+    def __init__(self, ref, config, model_type, param=None, previous_data=None, closed=False) -> None:
+        self.closed = closed
+        
         # from ref
         self.x = np.asarray(ref["x"])
         self.y = np.asarray(ref["y"])
@@ -131,11 +133,17 @@ class Trajectory_Opt:
 
         # "Lift" initial conditions
         Xk = ca.MX.sym('X0', self.nx)
+        X0 = Xk
         w.append(Xk)
         # * dimension check
-        lbw.append(self.model.state_init)  # equality constraint on init
-        ubw.append(self.model.state_init)
-        w0.append(self.model.state_init)
+        if self.closed is False:
+            lbw.append(self.model.state_init)  # equality constraint on init
+            ubw.append(self.model.state_init)
+            w0.append(self.model.state_init)
+        elif self.closed is True:
+            lbw.append(self.model.getStateMin(0))
+            ubw.append(self.model.getStateMax(0))
+            w0.append(self.model.getStateGuess(0))
         x_opt.append(Xk * self.model.x_s)
 
         # Formulate the NLP
@@ -209,6 +217,11 @@ class Trajectory_Opt:
                 lbg.append(self.model.getConstraintMin())
                 ubg.append(self.model.getConstraintMax())
 
+        if self.closed is True:
+            g.append(X0-Xk)  # closed condition
+            lbg.append([0.0] * self.nx)
+            ubg.append([0.0] * self.nx)
+
         # Concatenate vectors
         w = ca.vertcat(*w)
         g = ca.vertcat(*g)
@@ -255,7 +268,7 @@ class Trajectory_Opt:
         #     sys.exit(1)
         
         x_opt, u_opt, dx_opt, carinfo_opt, dt_opt = trajectories(sol['x'])
-        self.x_opt = x_opt.full().T # to numpy array
+        self.x_opt = x_opt.full().T # to numpy array, the first x_opt is idle but kept for completeness
         self.u_opt = np.vstack((np.array([0.0]*self.nu), u_opt.full().T)) # to numpy array
         self.dx_opt = np.vstack((np.array([0.0]*self.nx), dx_opt.full().T)) # to numpy array
         self.carinfo_opt = np.vstack((np.array([0.0]*carinfo_opt.full().T.shape[1]), carinfo_opt.full().T)) # to numpy array

@@ -60,6 +60,7 @@ with open(path_to_config, 'r') as stream:
     config = yaml.safe_load(stream)
 # object
 traj = Trajectory_Opt(ref, config, 'bi_3dof_ddelta')
+# traj = Trajectory_Opt(ref, config, 'bi_3dof_ddelta', closed=True)
 
 
 """ Optimize """
@@ -114,5 +115,5 @@ vis_t = time.perf_counter() - vis_t0
 print("[TIME] Visualization takes: %.3f s" % vis_t) # CPU seconds elapsed (floating point)
 plt.show()
 
-plotter.save(os.path.join(os.path.abspath(os.path.dirname(__file__)), '../data/road_reference/center.npz'))
+# plotter.save(os.path.join(os.path.abspath(os.path.dirname(__file__)), '../data/road_reference/center.npz'))
 # plotter.save(os.path.join(os.path.abspath(os.path.dirname(__file__)), '../data/road_reference/right.npz'))
