@@ -1,6 +1,8 @@
 """ 
 Generate reference path from trajectory optimization for vehicle tracking
 """
+# ! a problem is the serror under this condition is too high (generally around 10%)
+# it is because 0.3 / 0.05 = 6 is not much points to average out the error
 
 
 from opt.calc import *
@@ -11,6 +13,7 @@ from opt.vis import *
 import os
 import yaml
 import matplotlib.pyplot as plt
+from scipy import interpolate as si
 plt.rcParams.update({
     "font.family": "DeJavu Serif",
     "font.serif": ["Computer Modern Roman"],})
@@ -82,12 +85,29 @@ bound_right = np.load(path_to_bound_right)
 
 
 """ Process """
+
+# interpolate and optimize for curvature
 interval = 0.05
+ref = Referenceline_Opt(P,
+                        type='opt',
+                        interval=interval,
+                        a=1.0,
+                        b=0.0,
+                        g=2.0)
+ref.optimize()
+# interpolate velocity
+calc_origin = Calc(P)
+length_origin = calc_origin.Length()
+# convert s to 0-1 and then generate interpolation
+s_max = length_origin[-1]
+length_origin = length_origin / s_max
+f = si.interp1d(length_origin, vx, kind='linear')
 
 
 """ Results """
+
 # # Final curve length, curvature and yaw angle of track -> theta
-calc_final = Calc(P)
+calc_final = Calc(ref.P_all_sol)
 length_final = calc_final.Length()
 s_error     = calc_final.SError(interval)  # n-1 data
 s_error_max_index = np.argmax(s_error)
@@ -108,6 +128,7 @@ print('Total length: ', length_final[-1])
 
 
 """ Plot """
+
 # # plot intersections of closest points
 # for index_left_based in indexes_left_based:
 #     x = left[index_left_based[0], 0], right[index_left_based[1], 0]
@@ -120,7 +141,7 @@ print('Total length: ', length_final[-1])
 
 # ax[0].plot(np.append(P_fixed[:, 0], P_fixed[0, 0]),
 #             np.append(P_fixed[:, 1], P_fixed[0, 1]), '.-', color=CL['BLK'], label='Fixed points and connection', linewidth=1, markersize=8)
-ax[0].plot(P[:, 0], P[:, 1], '.',
+ax[0].plot(ref.P_all_sol[:, 0], ref.P_all_sol[:, 1], '.',
            color=CL['BLU'], label='Optimized reference', linewidth=3, markersize=4)
 ax[0].plot(left[:, 0], left[:, 1], '.', color=CL['RED'],
             label='Left cones', linewidth=2, markersize=8)
