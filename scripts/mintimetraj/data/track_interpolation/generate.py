@@ -99,9 +99,7 @@ ref.optimize()
 calc_origin = Calc(P)
 length_origin = calc_origin.Length()
 # convert s to 0-1 and then generate interpolation
-s_max = length_origin[-1]
-length_origin = length_origin / s_max
-f = si.interp1d(length_origin, vx, kind='linear')
+f = si.interp1d(length_origin / length_origin[-1], vx, kind='linear')
 
 
 """ Results """
@@ -109,6 +107,8 @@ f = si.interp1d(length_origin, vx, kind='linear')
 # # Final curve length, curvature and yaw angle of track -> theta
 calc_final = Calc(ref.P_all_sol)
 length_final = calc_final.Length()
+# interpolation
+vx_interp = f(length_final / length_final[-1])
 s_error     = calc_final.SError(interval)  # n-1 data
 s_error_max_index = np.argmax(s_error)
 kappa_final = calc_final.CurvO1F()
@@ -125,6 +125,24 @@ print('Theta end                : ', np.rad2deg(theta_final[-1]), 'deg')
 print('Theta start - (end + 360): ',
       np.rad2deg(theta_final[0])-(np.rad2deg(theta_final[-1])+360), 'deg')
 print('Total length: ', length_final[-1])
+
+
+""" Export """
+
+# format reference
+output = {
+    'x': ref.P_all_sol[:, 0].tolist(),
+    'y': ref.P_all_sol[:, 1].tolist(),
+    's': length_final.tolist(),
+    'kappa': kappa_final.tolist(),
+    'theta': theta_final.tolist(),
+    'bl': Bl.tolist(),
+    'br': Br.tolist(),
+    'vx': vx_interp.tolist(),
+}
+path_to_output = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'reference_7dof.yaml')
+with open(path_to_output, 'w') as stream:
+    yaml.dump(output, stream)
 
 
 """ Plot """
@@ -159,12 +177,14 @@ ax[3].plot(length_final, Bl, '-', color=CL['RED'],
             label='Left boundary distance', linewidth=3, markersize=8)
 ax[3].plot(length_final, Br, '-', color=CL['BLU'],
             label='Right boundary distance', linewidth=3, markersize=8)
-ax[4].plot(length_final[0:-1], s_error/interval*100, '-', color=CL['BLU'],
-            label='Road progress error', linewidth=3, markersize=8)
+# ax[4].plot(length_final[0:-1], s_error/interval*100, '-', color=CL['BLU'],
+#             label='Road progress error', linewidth=3, markersize=8)
+ax[4].plot(length_final, vx_interp, '.', color=CL['BLU'], linewidth=2, markersize=8)
 ax[0].axis('equal')
 ax[1].set_xlim([length_final[0], length_final[-1]])
 ax[2].set_xlim([length_final[0], length_final[-1]])
 ax[3].set_xlim([length_final[0], length_final[-1]])
+ax[4].set_xlim([length_final[0], length_final[-1]])
 # # ax[1].set_ylim([-100, 100])
 ax[0].set_xlabel('X ($m$)', fontsize=15)
 ax[0].set_ylabel('Y ($m$)', fontsize=15)
@@ -174,8 +194,10 @@ ax[2].set_xlabel('Curve length ($m$)', fontsize=15)
 ax[2].set_ylabel('$\\theta$ ($rad$)', fontsize=15)
 ax[3].set_xlabel('Curve length ($m$)', fontsize=15)
 ax[3].set_ylabel('Boundary distance ($m$)', fontsize=15)
+# ax[4].set_xlabel('Curve length ($m$)', fontsize=15)
+# ax[4].set_ylabel('Percent $s_{error}$ (%)', fontsize=15)
 ax[4].set_xlabel('Curve length ($m$)', fontsize=15)
-ax[4].set_ylabel('Percent $s_{error}$ (%)', fontsize=15)
+ax[4].set_ylabel('$v_x$ ($m/s$)', fontsize=15)
 ax[0].legend(loc='lower right', fontsize=10)
 ax[1].legend(loc='lower right', fontsize=10)
 ax[2].legend(loc='upper right', fontsize=10)
