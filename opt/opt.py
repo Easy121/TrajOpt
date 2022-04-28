@@ -271,8 +271,8 @@ class Referenceline_Opt_Free:
 
             # solve NLP
             nlp  = {'f': self.f, 'x': self.Z}
-            opts = {"ipopt.tol": 1e-7}
-            solver = ca.nlpsol("solver", "ipopt", nlp)
+            opts = {"ipopt.max_iter": 500}
+            solver = ca.nlpsol("solver", "ipopt", nlp, opts)
             print(solver)
 
             # initial guess as all 0

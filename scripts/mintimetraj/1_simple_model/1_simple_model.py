@@ -113,3 +113,6 @@ plotter.plotActualTireForceDlessEnd(10, 3, 5, 1, '+', zorder=5, color=CL['WHT'],
 vis_t = time.perf_counter() - vis_t0
 print("[TIME] Visualization takes: %.3f s" % vis_t) # CPU seconds elapsed (floating point)
 plt.show()
+
+plotter.save(os.path.join(os.path.abspath(os.path.dirname(__file__)), '../data/road_reference/center.npz'))
+# plotter.save(os.path.join(os.path.abspath(os.path.dirname(__file__)), '../data/road_reference/right.npz'))

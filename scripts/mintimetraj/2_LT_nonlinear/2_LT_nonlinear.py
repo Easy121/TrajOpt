@@ -27,6 +27,7 @@ CL = {'BLU': np.array([0, 114, 189])/255,
 """ Path """
 
 path_to_reference = os.path.join(os.path.abspath(os.path.dirname(__file__)), '../../referenceline/data/reference_center_sparse.yaml')
+# path_to_reference = os.path.join(os.path.abspath(os.path.dirname(__file__)), '../../referenceline/data/reference_right_sparse.yaml')
 # path_to_reference = os.path.join(os.path.abspath(os.path.dirname(__file__)), '../../referenceline/data/reference_7dof_1.yaml')
 path_to_track = os.path.join(os.path.abspath(os.path.dirname(__file__)), '../../referenceline/data/track.yaml')
 path_to_config = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'config.yaml')

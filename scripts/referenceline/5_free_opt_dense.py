@@ -45,7 +45,7 @@ left = np.asarray(left).reshape(-1, 2)
 right = np.asarray(right).reshape(-1, 2)
 # P, linkage = Calc.CentersVote(left, right)
 path_to_sparse = os.path.join(os.path.abspath(
-    os.path.dirname(__file__)), 'data/reference_sparse.yaml')
+    os.path.dirname(__file__)), 'data/reference_center_sparse.yaml')
 with open(path_to_sparse, 'r') as stream:
     sparse = yaml.safe_load(stream)
 P_x = np.asarray(sparse["x"])
@@ -103,20 +103,20 @@ print('Total length: ', length_final[-1])
 
 
 """ Export """
-# format reference
-output = {
-    'x': ref.P_all_sol[:, 0].tolist(),
-    'y': ref.P_all_sol[:, 1].tolist(),
-    's': length_final.tolist(),
-    'kappa': kappa_final.tolist(),
-    'theta': theta_final.tolist(),
-    'bl': Bl.tolist(),
-    'br': Br.tolist(),
-}
-path_to_output = os.path.join(os.path.abspath(
-    os.path.dirname(__file__)), 'data/' + 'reference_center' + '.yaml')
-with open(path_to_output, 'w') as stream:
-    yaml.dump(output, stream)
+# # format reference
+# output = {
+#     'x': ref.P_all_sol[:, 0].tolist(),
+#     'y': ref.P_all_sol[:, 1].tolist(),
+#     's': length_final.tolist(),
+#     'kappa': kappa_final.tolist(),
+#     'theta': theta_final.tolist(),
+#     'bl': Bl.tolist(),
+#     'br': Br.tolist(),
+# }
+# path_to_output = os.path.join(os.path.abspath(
+#     os.path.dirname(__file__)), 'data/' + 'reference_center' + '.yaml')
+# with open(path_to_output, 'w') as stream:
+#     yaml.dump(output, stream)
 
 # # format track
 # output = {

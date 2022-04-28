@@ -30,7 +30,8 @@ def XY2h(x, y):
 
 class Calc:
     def __init__(self, P, 
-                 vehicle={'wf':1.22, 'wr':1.18}):
+                 vehicle={'wf':1.42,  # the maximum width w_m is 1.42
+                          'wr':1.18}):
         # P should be organized as [[x_0, y_0],[x_1,y_1],...] with numpy format
         
         # initialization

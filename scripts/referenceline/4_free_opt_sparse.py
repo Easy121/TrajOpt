@@ -45,7 +45,8 @@ left = np.asarray(left).reshape(-1, 2)
 right = np.asarray(right).reshape(-1, 2)
 P, linkage = Calc.CentersVote(left, right)
 
-# interval = 0.1
+# 0.3 for 7dof, 0.5 for sparse
+# interval = 0.3
 interval = 0.5
 ref = Referenceline_Opt_Free(P,
                              type='opt',
@@ -108,7 +109,7 @@ print('Total length: ', length_final[-1])
 # }
 # path_to_output = os.path.join(os.path.abspath(
 #     os.path.dirname(__file__)), 'data/' + 'reference_center_sparse' + '.yaml')
-#     os.path.dirname(__file__)), 'data/' + 'reference_7dof' + '.yaml')
+#     # os.path.dirname(__file__)), 'data/' + 'reference_7dof_1' + '.yaml')
 # with open(path_to_output, 'w') as stream:
 #     yaml.dump(output, stream)
 

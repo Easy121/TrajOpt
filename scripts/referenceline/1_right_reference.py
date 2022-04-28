@@ -44,8 +44,8 @@ with open(path_to_data) as f:
 left = np.asarray(left).reshape(-1, 2)
 right = np.asarray(right).reshape(-1, 2)
 
-interval = 0.05
-# interval = 0.5
+# interval = 0.05
+interval = 0.5
 # Define opt class
 ref = Referenceline_Opt(right,
                          type='opt',
@@ -86,21 +86,21 @@ print('Total length: ', length_final[-1])
 
 
 """ Export """
-# format reference
-output = {
-    'x': ref.P_all_sol[:, 0].tolist(),
-    'y': ref.P_all_sol[:, 1].tolist(),
-    's': length_final.tolist(),
-    'kappa': kappa_final.tolist(),
-    'theta': theta_final.tolist(),
-    'bl': Bl.tolist(),
-    'br': Br.tolist(),
-}
-path_to_output = os.path.join(os.path.abspath(
-    os.path.dirname(__file__)), 'data/' + 'reference_right' + '.yaml')
-    # os.path.dirname(__file__)), 'data/' + 'reference_right_sparse' + '.yaml')
-with open(path_to_output, 'w') as stream:
-    yaml.dump(output, stream)
+# # format reference
+# output = {
+#     'x': ref.P_all_sol[:, 0].tolist(),
+#     'y': ref.P_all_sol[:, 1].tolist(),
+#     's': length_final.tolist(),
+#     'kappa': kappa_final.tolist(),
+#     'theta': theta_final.tolist(),
+#     'bl': Bl.tolist(),
+#     'br': Br.tolist(),
+# }
+# path_to_output = os.path.join(os.path.abspath(
+#     # os.path.dirname(__file__)), 'data/' + 'reference_right' + '.yaml')
+#     os.path.dirname(__file__)), 'data/' + 'reference_right_sparse' + '.yaml')
+# with open(path_to_output, 'w') as stream:
+#     yaml.dump(output, stream)
 
 # # format track
 # output = {

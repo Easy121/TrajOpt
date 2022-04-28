@@ -57,31 +57,31 @@ center_calc = Calc(center_points)
 
 
 """ Plot """
-# 1. path comparison
-fig, ax = plt.subplots(figsize=(10, 6), dpi=80)
-ax.plot(left_cones[:, 0], left_cones[:, 1], '.', color=CL['RED'], label='Left cones', linewidth=2, markersize=8)
-ax.plot(right_cones[:, 0], right_cones[:, 1], '.', color=CL['BLU'], label='Right cones', linewidth=2, markersize=8, zorder=10)
-ax.plot(right['x'], right['y'], '-', color=CL['ORA'], label='CO-Fixed', linewidth=3, markersize=8)
-ax.plot(center['x'], center['y'], '-', color=CL['BLU'], label='CO-Free', linewidth=3, markersize=8)
-ax.set_xlabel('X ($m$)', fontsize=20)
-ax.set_ylabel('Y ($m$)', fontsize=20)
-ax.axis('equal')
-ax.legend(loc='upper right', fontsize=15)  # 标签位置
-ax.grid(linestyle='--')
-plt.tight_layout()
-plt.savefig(os.path.join(os.path.abspath(os.path.dirname(__file__)), "1 Path comparison of CO-Fixed and CO-Free.svg"))
+# # 1. path comparison
+# fig, ax = plt.subplots(figsize=(10, 6), dpi=80)
+# ax.plot(left_cones[:, 0], left_cones[:, 1], '.', color=CL['RED'], label='Left cones', linewidth=2, markersize=8)
+# ax.plot(right_cones[:, 0], right_cones[:, 1], '.', color=CL['BLU'], label='Right cones', linewidth=2, markersize=8, zorder=10)
+# ax.plot(right['x'], right['y'], '-', color=CL['ORA'], label='CO-Fixed', linewidth=3, markersize=8)
+# ax.plot(center['x'], center['y'], '-', color=CL['BLU'], label='CO-Free', linewidth=3, markersize=8)
+# ax.set_xlabel('X ($m$)', fontsize=20)
+# ax.set_ylabel('Y ($m$)', fontsize=20)
+# ax.axis('equal')
+# ax.legend(loc='upper right', fontsize=15)  # 标签位置
+# ax.grid(linestyle='--')
+# plt.tight_layout()
+# plt.savefig(os.path.join(os.path.abspath(os.path.dirname(__file__)), "1 Path comparison of CO-Fixed and CO-Free.svg"))
 
-# 2. curvature comparison
-fig, ax = plt.subplots(figsize=(10, 6), dpi=80)
-ax.plot(right_calc.Length() / right_calc.Length()[-1], right_calc.CurvO1F(), '-', color=CL['ORA'], label='CO-Fixed', linewidth=3, markersize=8)
-ax.plot(center_calc.Length() / center_calc.Length()[-1], center_calc.CurvO1F(), '-', color=CL['BLU'], label='CO-Free', linewidth=3, markersize=8)
-ax.set_xlabel('Curve length ($\%$)', fontsize=20)
-ax.set_ylabel('Curvature', fontsize=20)
-ax.set_xlim([0, 1])
-ax.legend(loc='upper right', fontsize=15)  # 标签位置
-ax.grid(linestyle='--')
-plt.tight_layout()
-plt.savefig(os.path.join(os.path.abspath(os.path.dirname(__file__)), "2 Curvature comparison of CO-Fixed and CO-Free.svg"))
+# # 2. curvature comparison
+# fig, ax = plt.subplots(figsize=(10, 6), dpi=80)
+# ax.plot(right_calc.Length() / right_calc.Length()[-1], right_calc.CurvO1F(), '-', color=CL['ORA'], label='CO-Fixed', linewidth=3, markersize=8)
+# ax.plot(center_calc.Length() / center_calc.Length()[-1], center_calc.CurvO1F(), '-', color=CL['BLU'], label='CO-Free', linewidth=3, markersize=8)
+# ax.set_xlabel('Curve length ($\%$)', fontsize=20)
+# ax.set_ylabel('Curvature', fontsize=20)
+# ax.set_xlim([0, 1])
+# ax.legend(loc='upper right', fontsize=15)  # 标签位置
+# ax.grid(linestyle='--')
+# plt.tight_layout()
+# plt.savefig(os.path.join(os.path.abspath(os.path.dirname(__file__)), "2 Curvature comparison of CO-Fixed and CO-Free.svg"))
 
 # 3. boundary distance
 fig, ax = plt.subplots(figsize=(10, 6), dpi=80)
@@ -97,34 +97,34 @@ ax.grid(linestyle='--')
 plt.tight_layout()
 plt.savefig(os.path.join(os.path.abspath(os.path.dirname(__file__)), "3 Boundary distance comparison of CO-Fixed and CO-Free.svg"))
 
-# 4. (subfigure) Distance error analysis of CO-Fixed
-s_error_right     = right_calc.SError(interval)  # n-1 data
-s_error_max_index_right = np.argmax(s_error_right)
-s_error_center     = center_calc.SError(interval)  # n-1 data
+# # 4. (subfigure) Distance error analysis of CO-Fixed
+# s_error_right     = right_calc.SError(interval)  # n-1 data
+# s_error_max_index_right = np.argmax(s_error_right)
+# s_error_center     = center_calc.SError(interval)  # n-1 data
 
-fig, ax = plt.subplots(figsize=(8, 6), dpi=80)
-ax.plot(right_points[s_error_max_index_right, 0], right_points[s_error_max_index_right, 1], '.', color=CL['BLK'], label='Largest error', markersize=14, zorder=9)
-ax.plot(left_cones[:, 0], left_cones[:, 1], '.', color=CL['RED'], label='Left cones', linewidth=2, markersize=8)
-ax.plot(right_cones[:, 0], right_cones[:, 1], '.', color=CL['BLU'], label='Right cones', linewidth=2, markersize=8, zorder=10)
-ax.plot(right['x'], right['y'], '-', color=CL['ORA'], label='CO-Fixed', linewidth=3, markersize=8)
-ax.set_xlabel('X ($m$)', fontsize=20)
-ax.set_ylabel('Y ($m$)', fontsize=20)
-ax.legend(loc='upper right', fontsize=15)  # 标签位置
-ax.axis('equal')
-ax.grid(linestyle='--')
-plt.tight_layout()
-plt.savefig(os.path.join(os.path.abspath(os.path.dirname(__file__)), "4_1 Point with largest error.svg"))
+# fig, ax = plt.subplots(figsize=(8, 6), dpi=80)
+# ax.plot(right_points[s_error_max_index_right, 0], right_points[s_error_max_index_right, 1], '.', color=CL['BLK'], label='Largest error', markersize=14, zorder=9)
+# ax.plot(left_cones[:, 0], left_cones[:, 1], '.', color=CL['RED'], label='Left cones', linewidth=2, markersize=8)
+# ax.plot(right_cones[:, 0], right_cones[:, 1], '.', color=CL['BLU'], label='Right cones', linewidth=2, markersize=8, zorder=10)
+# ax.plot(right['x'], right['y'], '-', color=CL['ORA'], label='CO-Fixed', linewidth=3, markersize=8)
+# ax.set_xlabel('X ($m$)', fontsize=20)
+# ax.set_ylabel('Y ($m$)', fontsize=20)
+# ax.legend(loc='upper right', fontsize=15)  # 标签位置
+# ax.axis('equal')
+# ax.grid(linestyle='--')
+# plt.tight_layout()
+# plt.savefig(os.path.join(os.path.abspath(os.path.dirname(__file__)), "4_1 Point with largest error.svg"))
 
-fig, ax = plt.subplots(figsize=(8, 6), dpi=80)
-ax.plot(right_calc.Length()[:-1] / right_calc.Length()[-1], s_error_right/interval*100, '-', color=CL['ORA'], label='CO-Fixed', linewidth=3, markersize=8)
-ax.plot(center_calc.Length()[:-1] / center_calc.Length()[-1], s_error_center/interval*100, '-', color=CL['BLU'], label='CO-Free', linewidth=3, markersize=8)
-ax.set_xlabel('Curve length ($\%$)', fontsize=20)
-ax.set_ylabel('Percent $s_{error}$ ($\%$)', fontsize=20)
-ax.set_xlim([0, 1])
-ax.legend(loc='upper left', fontsize=15)  # 标签位置
-ax.grid(linestyle='--')
-plt.tight_layout()
-plt.savefig(os.path.join(os.path.abspath(os.path.dirname(__file__)), "4_2 Distance error comparison.svg"))
+# fig, ax = plt.subplots(figsize=(8, 6), dpi=80)
+# ax.plot(right_calc.Length()[:-1] / right_calc.Length()[-1], s_error_right/interval*100, '-', color=CL['ORA'], label='CO-Fixed', linewidth=3, markersize=8)
+# ax.plot(center_calc.Length()[:-1] / center_calc.Length()[-1], s_error_center/interval*100, '-', color=CL['BLU'], label='CO-Free', linewidth=3, markersize=8)
+# ax.set_xlabel('Curve length ($\%$)', fontsize=20)
+# ax.set_ylabel('Percent $s_{error}$ ($\%$)', fontsize=20)
+# ax.set_xlim([0, 1])
+# ax.legend(loc='upper left', fontsize=15)  # 标签位置
+# ax.grid(linestyle='--')
+# plt.tight_layout()
+# plt.savefig(os.path.join(os.path.abspath(os.path.dirname(__file__)), "4_2 Distance error comparison.svg"))
 
 # ax.set_xlim([-100, 100])
 # ax.set_ylim([-100, 100])
