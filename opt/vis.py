@@ -719,6 +719,22 @@ class Plotter():
         self.ax[ax_index].set_ylabel(ylabel, fontsize=label_fontsize)
         self.ax[ax_index].legend(loc=legend_loc, fontsize=legend_fontsize)
         self.ax[ax_index].set_xlim([0, self.t_sequence[-1]])
+        
+    def plotActualStateProgress(self, 
+                                ax_index, 
+                                state_index, 
+                                format,  # format of points and lines
+                                color=CL['RED'],
+                                xlabel='Curve length ($\%$)', ylabel='', legend='Actual',
+                                label_fontsize=15, legend_fontsize=10, legend_loc='upper right',
+                                linewidth=3, markersize=8, markeredgewidth=3):
+        data = self.x_arch[:, state_index]
+        self.ax[ax_index].plot(self.t_sequence[0::self.interval] / self.t_sequence[0::self.interval][-1] * 100, data[0::self.interval], format, color=color, label=legend, 
+            linewidth=linewidth, markersize=markersize, markeredgewidth=markeredgewidth)
+        self.ax[ax_index].set_xlabel(xlabel, fontsize=label_fontsize)
+        self.ax[ax_index].set_ylabel(ylabel, fontsize=label_fontsize)
+        self.ax[ax_index].legend(loc=legend_loc, fontsize=legend_fontsize)
+        self.ax[ax_index].set_xlim([0, 100])
 
     def plotPredictedState(self,
                            ax_index,
@@ -767,6 +783,22 @@ class Plotter():
         self.ax[ax_index].set_ylabel(ylabel, fontsize=label_fontsize)
         self.ax[ax_index].legend(loc=legend_loc, fontsize=legend_fontsize)
         self.ax[ax_index].set_xlim([0, self.t_sequence[-1]])
+        
+    def plotActualInputProgress(self, 
+                        ax_index, 
+                        input_index, 
+                        format,  # format of points and lines
+                        color=CL['ORA'],
+                        xlabel='Curve length ($\%$)', ylabel='', legend='Actual',
+                        label_fontsize=15, legend_fontsize=10, legend_loc='upper right',
+                        linewidth=3, markersize=8, markeredgewidth=3):
+        data = self.u_arch[:, input_index]
+        self.ax[ax_index].plot(self.t_sequence[0::self.interval] / self.t_sequence[0::self.interval][-1] * 100, data[0::self.interval], format, color=color, label=legend, 
+            linewidth=linewidth, markersize=markersize, markeredgewidth=markeredgewidth)
+        self.ax[ax_index].set_xlabel(xlabel, fontsize=label_fontsize)
+        self.ax[ax_index].set_ylabel(ylabel, fontsize=label_fontsize)
+        self.ax[ax_index].legend(loc=legend_loc, fontsize=legend_fontsize)
+        self.ax[ax_index].set_xlim([0, 100])
 
     def plotPredictedInput(self,
                            ax_index,

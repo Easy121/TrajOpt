@@ -117,3 +117,6 @@ plt.show()
 
 # plotter.save(os.path.join(os.path.abspath(os.path.dirname(__file__)), '../data/road_reference/center.npz'))
 # plotter.save(os.path.join(os.path.abspath(os.path.dirname(__file__)), '../data/road_reference/right.npz'))
+# plotter.save(os.path.join(os.path.abspath(os.path.dirname(__file__)), '../data/mal_definition/mal_defined.npz'))
+# plotter.save(os.path.join(os.path.abspath(os.path.dirname(__file__)), '../data/mal_definition/correct.npz'))
+# plotter.save(os.path.join(os.path.abspath(os.path.dirname(__file__)), '../data/four_models/3-DOF wo LT.npz'))

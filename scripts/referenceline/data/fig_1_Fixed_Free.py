@@ -73,29 +73,29 @@ center_calc = Calc(center_points)
 
 # # 2. curvature comparison
 # fig, ax = plt.subplots(figsize=(10, 6), dpi=80)
-# ax.plot(right_calc.Length() / right_calc.Length()[-1], right_calc.CurvO1F(), '-', color=CL['ORA'], label='CO-Fixed', linewidth=3, markersize=8)
-# ax.plot(center_calc.Length() / center_calc.Length()[-1], center_calc.CurvO1F(), '-', color=CL['BLU'], label='CO-Free', linewidth=3, markersize=8)
+# ax.plot(right_calc.Length() / right_calc.Length()[-1] * 100, right_calc.CurvO1F(), '-', color=CL['ORA'], label='CO-Fixed', linewidth=3, markersize=8)
+# ax.plot(center_calc.Length() / center_calc.Length()[-1] * 100, center_calc.CurvO1F(), '-', color=CL['BLU'], label='CO-Free', linewidth=3, markersize=8)
 # ax.set_xlabel('Curve length ($\%$)', fontsize=20)
 # ax.set_ylabel('Curvature', fontsize=20)
-# ax.set_xlim([0, 1])
+# ax.set_xlim([0, 100])
 # ax.legend(loc='upper right', fontsize=15)  # 标签位置
 # ax.grid(linestyle='--')
 # plt.tight_layout()
-# plt.savefig(os.path.join(os.path.abspath(os.path.dirname(__file__)), "2 Curvature comparison of CO-Fixed and CO-Free.svg"))
+# plt.savefig(os.path.join(os.path.abspath(os.path.dirname(__file__)), "2 Curvature comparison of CO-Fixed and CO-Free.pdf"))
 
-# 3. boundary distance
-fig, ax = plt.subplots(figsize=(10, 6), dpi=80)
-ax.plot(right_calc.Length() / right_calc.Length()[-1], right['bl'], '-', color=CL['ORA'], label='CO-Fixed', linewidth=3, markersize=8)
-ax.plot(right_calc.Length() / right_calc.Length()[-1], right['br'], '-', color=CL['ORA'], linewidth=3, markersize=8)
-ax.plot(center_calc.Length() / center_calc.Length()[-1], center['bl'], '-', color=CL['BLU'], label='CO-Free', linewidth=3, markersize=8)
-ax.plot(center_calc.Length() / center_calc.Length()[-1], center['br'], '-', color=CL['BLU'], linewidth=3, markersize=8)
-ax.set_xlabel('Curve length ($\%$)', fontsize=20)
-ax.set_ylabel('Boundary distance ($m$)', fontsize=20)
-ax.set_xlim([0, 1])
-ax.legend(loc='upper right', fontsize=15)  # 标签位置
-ax.grid(linestyle='--')
-plt.tight_layout()
-plt.savefig(os.path.join(os.path.abspath(os.path.dirname(__file__)), "3 Boundary distance comparison of CO-Fixed and CO-Free.svg"))
+# # 3. boundary distance
+# fig, ax = plt.subplots(figsize=(10, 6), dpi=80)
+# ax.plot(right_calc.Length() / right_calc.Length()[-1] * 100, right['bl'], '-', color=CL['ORA'], label='CO-Fixed', linewidth=3, markersize=8)
+# ax.plot(right_calc.Length() / right_calc.Length()[-1] * 100, right['br'], '-', color=CL['ORA'], linewidth=3, markersize=8)
+# ax.plot(center_calc.Length() / center_calc.Length()[-1] * 100, center['bl'], '-', color=CL['BLU'], label='CO-Free', linewidth=3, markersize=8)
+# ax.plot(center_calc.Length() / center_calc.Length()[-1] * 100, center['br'], '-', color=CL['BLU'], linewidth=3, markersize=8)
+# ax.set_xlabel('Curve length ($\%$)', fontsize=20)
+# ax.set_ylabel('Boundary distance ($m$)', fontsize=20)
+# ax.set_xlim([0, 100])
+# ax.legend(loc='upper right', fontsize=15)  # 标签位置
+# ax.grid(linestyle='--')
+# plt.tight_layout()
+# plt.savefig(os.path.join(os.path.abspath(os.path.dirname(__file__)), "3 Boundary distance comparison of CO-Fixed and CO-Free.pdf"))
 
 # # 4. (subfigure) Distance error analysis of CO-Fixed
 # s_error_right     = right_calc.SError(interval)  # n-1 data
@@ -113,18 +113,18 @@ plt.savefig(os.path.join(os.path.abspath(os.path.dirname(__file__)), "3 Boundary
 # ax.axis('equal')
 # ax.grid(linestyle='--')
 # plt.tight_layout()
-# plt.savefig(os.path.join(os.path.abspath(os.path.dirname(__file__)), "4_1 Point with largest error.svg"))
+# # plt.savefig(os.path.join(os.path.abspath(os.path.dirname(__file__)), "4_1 Point with largest error.svg"))
 
 # fig, ax = plt.subplots(figsize=(8, 6), dpi=80)
-# ax.plot(right_calc.Length()[:-1] / right_calc.Length()[-1], s_error_right/interval*100, '-', color=CL['ORA'], label='CO-Fixed', linewidth=3, markersize=8)
-# ax.plot(center_calc.Length()[:-1] / center_calc.Length()[-1], s_error_center/interval*100, '-', color=CL['BLU'], label='CO-Free', linewidth=3, markersize=8)
+# ax.plot(right_calc.Length()[:-1] / right_calc.Length()[-1] * 100, s_error_right/interval*100, '-', color=CL['ORA'], label='CO-Fixed', linewidth=3, markersize=8)
+# ax.plot(center_calc.Length()[:-1] / center_calc.Length()[-1] * 100, s_error_center/interval*100, '-', color=CL['BLU'], label='CO-Free', linewidth=3, markersize=8)
 # ax.set_xlabel('Curve length ($\%$)', fontsize=20)
 # ax.set_ylabel('Percent $s_{error}$ ($\%$)', fontsize=20)
-# ax.set_xlim([0, 1])
+# ax.set_xlim([0, 100])
 # ax.legend(loc='upper left', fontsize=15)  # 标签位置
 # ax.grid(linestyle='--')
 # plt.tight_layout()
-# plt.savefig(os.path.join(os.path.abspath(os.path.dirname(__file__)), "4_2 Distance error comparison.svg"))
+# plt.savefig(os.path.join(os.path.abspath(os.path.dirname(__file__)), "4_2 Distance error comparison.pdf"))
 
 # ax.set_xlim([-100, 100])
 # ax.set_ylim([-100, 100])

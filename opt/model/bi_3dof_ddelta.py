@@ -19,6 +19,7 @@ class Bi3dofddelta:
         # from config
         self.nx = config["nx"]
         self.nu = config["nu"]
+        self.mu = config["mu"]
         
         ############################################################
         # Model Definition #########################################
@@ -89,8 +90,8 @@ class Bi3dofddelta:
         # the torque also drives wheels
         Fx  = T / R * 0.94  # 94% due to acceleration of wheels
         # no need to multiply two because Fzf already twice
-        Fyf = Fzf * By * Cy * Dy * (ca.atan((vy + dpsi * lf) / vx) - delta)
-        Fyr = Fzr * By * Cy * Dy * (ca.atan((vy - dpsi * lr) / vx))
+        Fyf = self.mu * Fzf * By * Cy * Dy * (ca.atan((vy + dpsi * lf) / vx) - delta)
+        Fyr = self.mu * Fzr * By * Cy * Dy * (ca.atan((vy - dpsi * lr) / vx))
         
         # model descriptions
         # convert to s-based dynamics instead of t-based
@@ -122,7 +123,7 @@ class Bi3dofddelta:
 
         # Objective term
         # L = dt
-        L = 5 * dt * dt + 4 * ddelta * ddelta + 0.00001 * T * T
+        L = 5 * dt * dt + 4 * ddelta * ddelta + 0.000001 * T * T
         # L = 5 * dt + 2 * ddelta * ddelta + 0.00001 * T * T
 
         # Continuous time dynamics
@@ -168,7 +169,7 @@ class Bi3dofddelta:
     
     def getStateMax(self, k):
         state_max = [
-            5.0 / self.vx_s,  # vx
+            10.0 / self.vx_s,  # vx
             np.inf,  # vy 
             np.inf,  # dpsi
             self.bl[k] / self.n_s,  # n
@@ -180,13 +181,13 @@ class Bi3dofddelta:
     def getInputMin(self, k):
         input_min = [
             -1.414 / self.ddelta_s,  # ddelta
-            -100 / self.T_s,  # T
+            -200 / self.T_s,  # T
         ]
         return input_min
     
     def getInputMax(self, k):
         input_max = [
             1.414 / self.ddelta_s,  # ddelta
-            100 / self.T_s,  # T
+            200 / self.T_s,  # T
         ]
         return input_max

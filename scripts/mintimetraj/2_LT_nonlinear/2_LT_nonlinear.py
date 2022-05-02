@@ -117,3 +117,4 @@ plt.show()
 
 # plotter.save(os.path.join(os.path.abspath(os.path.dirname(__file__)), '../data/LT_nonlinear.npz'))
 # plotter.save(os.path.join(os.path.abspath(os.path.dirname(__file__)), '../data/7dof_warm.npz'))
+# plotter.save(os.path.join(os.path.abspath(os.path.dirname(__file__)), '../data/four_models/3-DOF LT.npz'))
