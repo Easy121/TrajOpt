@@ -21,7 +21,9 @@ CL = {'BLU': np.array([0, 114, 189])/255,
       'BLK': np.array([0, 0, 0])/255,
       'WHT': np.array([255, 255, 255])/255,}
 
+
 """ Data loading """
+
 path_to_ref_center = os.path.join(os.path.abspath(os.path.dirname(__file__)), '../../../referenceline/data/reference_center_sparse.yaml')
 path_to_ref_7dof_1 = os.path.join(os.path.abspath(os.path.dirname(__file__)), '../../../referenceline/data/reference_7dof_1.yaml')
 path_to_ref_right = os.path.join(os.path.abspath(os.path.dirname(__file__)), '../../../referenceline/data/reference_right_sparse.yaml')
@@ -43,7 +45,9 @@ with open(path_to_ref_right, 'r') as stream:
 with open(path_to_ref_7dof_1, 'r') as stream:
     ref_7dof_1 = yaml.safe_load(stream)
 
+
 """ Vis """
+
 # plotter = Plotter(None, None, 12, width_ratios=[0, 0], figsize=(24, 12), mode='debug', interval=1)
 # plotter.t_sequence = data['t_sequence']
 # plotter.x_arch = data['x_arch']

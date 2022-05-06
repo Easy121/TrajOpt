@@ -109,9 +109,14 @@ print('Number of points: ', length_final.size)
 
 """ Velocity Profile Generation """
 # ay = vx^2 / R = vx^2 * kappa, vx_max = sqrt(ay_max/kappa)
+
+# low speed
 # vx_max = 10
 # ay_max = 5
-vx_max = 17
+
+# high speed
+# vx_max = 17  # used to be 17 m/s 
+vx_max = 16
 ay_max = 10
 vx = []
 for i in range(kappa_final.size):

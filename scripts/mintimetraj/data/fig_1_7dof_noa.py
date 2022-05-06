@@ -41,12 +41,14 @@ with open(path_to_reference, 'r') as stream:
 # plotter.carinfo_arch = data['carinfo_arch']
 
 # 1. Vehicle trajectory
-plotter = Plotter(None, None, 1, width_ratios=[0, 0], figsize=(15, 10), mode='debug', interval=1)
+plotter = Plotter(None, None, 1, width_ratios=[0, 0], figsize=(12, 10), mode='debug', interval=1)
 plotter.t_sequence = data['t_sequence']
 plotter.x_arch = data['x_arch']
 plotter.plotTrack(0, path_to_track)
 plotter.plotReference(0, path_to_reference, color=CL['BLU'], interval=1)
 plotter.plotOptXYFrame(0, 7, 8, 60, ref, '-', legend_loc='upper right')
 plotter.ax[0].set(xlim=[-10,30], ylim=[-45, -5])
+# plt.savefig('/Users/gzj/FILES/SYNCHRON/T/Direction_Doctor/Motion Planning and Control of 2-IWD Autonomous Electric Racing Car under Limit Conditions/My Work/BachelorThesis/figure/results/time_optimal_solutions/four_models/Key frames of 7-DOF wo LT.pdf')
+
 
 plt.show()

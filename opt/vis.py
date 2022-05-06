@@ -125,7 +125,7 @@ class Plotter():
         if width_ratios[0] == 0:
             # construct plot
             combination = PlotNumConvert.get(num_of_plots, 'Not a valid key')
-            fig = plt.figure(constrained_layout=True, figsize=figsize, dpi=80)    
+            fig = plt.figure(constrained_layout=True, figsize=figsize, dpi=80, num='GMPCPlatform')    
             self.ax = []  # only one dimensional
             index = 1
             for row in range(combination[0]):
