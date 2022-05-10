@@ -432,7 +432,8 @@ class Dual7dofnoa:
     
     def getStateMax(self, k):
         state_max = [
-            10.0 / self.vx_s,  # vx
+            # 10.0 / self.vx_s,  # vx
+            5.0 / self.vx_s,  # vx
             np.inf,  # vy 
             np.inf,  # dpsi
             1.0,  # omega

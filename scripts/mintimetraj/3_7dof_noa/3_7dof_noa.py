@@ -134,3 +134,4 @@ plt.show()
 
 # plotter.save(os.path.join(os.path.abspath(os.path.dirname(__file__)), '../data/7dof_noa.npz'))
 # plotter.save(os.path.join(os.path.abspath(os.path.dirname(__file__)), '../data/7dof_noa_closed.npz'))
+# plotter.save(os.path.join(os.path.abspath(os.path.dirname(__file__)), '../data/7dof_2_closed_low_speed.npz'))

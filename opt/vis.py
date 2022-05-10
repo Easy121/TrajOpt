@@ -125,7 +125,8 @@ class Plotter():
         if width_ratios[0] == 0:
             # construct plot
             combination = PlotNumConvert.get(num_of_plots, 'Not a valid key')
-            fig = plt.figure(constrained_layout=True, figsize=figsize, dpi=80, num='GMPCPlatform')    
+            fig = plt.figure(constrained_layout=True, figsize=figsize, dpi=80)    
+            fig.canvas.manager.set_window_title('GMPCPlatform')
             self.ax = []  # only one dimensional
             index = 1
             for row in range(combination[0]):
@@ -137,6 +138,7 @@ class Plotter():
                     index += 1
         else:
             fig = plt.figure(constrained_layout=True, figsize=figsize, dpi=80)
+            fig.canvas.manager.set_window_title('GMPCPlatform')
             gs0 = fig.add_gridspec(1, 2, width_ratios=width_ratios)
             # two grids always reserved for time 
             gs00 = gs0[0].subgridspec(2, 1)
@@ -238,7 +240,7 @@ class Plotter():
     ###################################
 
     # Track
-    def plotTrack(self, ax_index, arg, w=1.22):
+    def plotTrack(self, ax_index, arg, w=1.22, color=False):
         if arg == 'DLC':  # double lane change
             start_1 = 0
             end_1 = 12
@@ -274,10 +276,15 @@ class Plotter():
                 ly = data['ly']
                 rx = data['rx']
                 ry = data['ry']
-                self.ax[ax_index].plot(lx, ly, '.', color=CL['RED'],
-                    label='Left cones', linewidth=3, markersize=8)
-                self.ax[ax_index].plot(rx, ry, '.', color=CL['BLU'],
-                    label='Right cones', linewidth=3, markersize=8)
+                if color is False:
+                    self.ax[ax_index].plot(lx, ly, '.', color=CL['RED'],
+                        label='Left cones', linewidth=3, markersize=8)
+                    self.ax[ax_index].plot(rx, ry, '.', color=CL['BLU'],
+                        label='Right cones', linewidth=3, markersize=8)
+                else:
+                    self.ax[ax_index].plot(lx, ly, '.', color=color,
+                        label='Cones', linewidth=3, markersize=8)
+                    self.ax[ax_index].plot(rx, ry, '.', color=color, linewidth=3, markersize=8)
                 self.ax[ax_index].axis('equal')
             
     def plotReference(self, ax_index, path, format='--', color=CL['ORA'], legend_fontsize=10, legend_loc='upper right', interval=10):
@@ -302,6 +309,21 @@ class Plotter():
             vx.append(self.ref['vx'][track_index])
         vx = np.asarray(vx)
         self.ax[ax_index].plot(self.t_ctrl_sequence, vx, format, color=color, 
+            label='Reference', linewidth=2, markersize=8)
+        self.ax[ax_index].legend(loc=legend_loc, fontsize=legend_fontsize)
+        
+    def plotReferenceVxProgress(self, ax_index, s_index, mpcsolver, path=None, format='--', color=CL['ORA'], legend_fontsize=10, legend_loc='upper right'):
+        if self.is_ref_initialized == False:
+            with open(path) as stream:
+                self.ref = yaml.safe_load(stream)
+                self.is_ref_initialized = True
+        s_data = self.solver_addition_arch[:, s_index]
+        vx = []
+        for index in range(s_data.size):
+            track_index = mpcsolver.solver.calcIndex(s_data[index])
+            vx.append(self.ref['vx'][track_index])
+        vx = np.asarray(vx)
+        self.ax[ax_index].plot(self.t_ctrl_sequence / self.t_ctrl_sequence[-1] * 100, vx, format, color=color, 
             label='Reference', linewidth=2, markersize=8)
         self.ax[ax_index].legend(loc=legend_loc, fontsize=legend_fontsize)
             
@@ -332,17 +354,18 @@ class Plotter():
                      color=CL['BLK'],
                      xlabel='$X$ ($m$)', ylabel='$Y$ ($m$)', legend='Actual',
                      label_fontsize=15, legend_fontsize=10, legend_loc='upper right',
-                     linewidth=3, markersize=8, markeredgewidth=3, set_plot_range=False, axis_equal=True):
+                     linewidth=3, markersize=8, markeredgewidth=3, set_plot_range=False, axis_equal=True, race_car=True):
         data_X = self.x_arch[:, X_index]
         data_Y = self.x_arch[:, Y_index]
         data_Psi = self.x_arch[:, Psi_index]
         
         # race car plot
-        img_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'race_car.png')
-        img = mpimg.imread(img_path)
-        self.plotRaceCar(self.ax[ax_index], img, mtransforms.Affine2D().rotate_deg(np.rad2deg(data_Psi[0])).translate(data_X[0], data_Y[0]))
-        self.plotRaceCar(self.ax[ax_index], img, mtransforms.Affine2D().rotate_deg(np.rad2deg(data_Psi[-1])).translate(data_X[-1], data_Y[-1]))
-        
+        if race_car is True:
+            img_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'race_car.png')
+            img = mpimg.imread(img_path)
+            self.plotRaceCar(self.ax[ax_index], img, mtransforms.Affine2D().rotate_deg(np.rad2deg(data_Psi[0])).translate(data_X[0], data_Y[0]))
+            self.plotRaceCar(self.ax[ax_index], img, mtransforms.Affine2D().rotate_deg(np.rad2deg(data_Psi[-1])).translate(data_X[-1], data_Y[-1]))
+            
         # orignal plot
         self.ax[ax_index].plot(data_X[0::self.interval], data_Y[0::self.interval], format, color=color, label=legend, 
             linewidth=linewidth, markersize=markersize, markeredgewidth=markeredgewidth)

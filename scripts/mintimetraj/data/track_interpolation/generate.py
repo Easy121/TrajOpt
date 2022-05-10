@@ -30,9 +30,12 @@ CL = {'BLU': np.array([0, 114, 189])/255,
 
 """ Path """
 
-path_to_data = os.path.join(os.path.abspath(os.path.dirname(__file__)), '../7dof_2_closed.npz')
+# path_to_data = os.path.join(os.path.abspath(os.path.dirname(__file__)), '../7dof_2_closed.npz')
+# path_to_data = os.path.join(os.path.abspath(os.path.dirname(__file__)), '../7dof_2_closed_low_mu.npz')
+path_to_data = os.path.join(os.path.abspath(os.path.dirname(__file__)), '../7dof_2_closed_low_speed.npz')
 # path_to_data = os.path.join(os.path.abspath(os.path.dirname(__file__)), '../7dof_noa_closed.npz')
-path_to_reference = os.path.join(os.path.abspath(os.path.dirname(__file__)), '../../../referenceline/data/reference_7dof_1.yaml')
+# path_to_reference = os.path.join(os.path.abspath(os.path.dirname(__file__)), '../../../referenceline/data/reference_7dof_1.yaml')
+path_to_reference = os.path.join(os.path.abspath(os.path.dirname(__file__)), '../../../referenceline/data/reference_center_sparse.yaml')
 path_to_track = os.path.join(os.path.abspath(os.path.dirname(__file__)), '../../../referenceline/data/track.yaml')
 path_to_bound_left = os.path.join(os.path.abspath(os.path.dirname(__file__)), '../../../referenceline/data/bound_left.npz')
 path_to_bound_right = os.path.join(os.path.abspath(os.path.dirname(__file__)), '../../../referenceline/data/bound_right.npz')
@@ -140,7 +143,9 @@ output = {
     'br': Br.tolist(),
     'vx': vx_interp.tolist(),
 }
-path_to_output = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'reference_7dof.yaml')
+# path_to_output = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'reference_7dof.yaml')
+# path_to_output = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'reference_7dof_low_mu.yaml')
+path_to_output = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'reference_7dof_low_speed.yaml')
 with open(path_to_output, 'w') as stream:
     yaml.dump(output, stream)
 

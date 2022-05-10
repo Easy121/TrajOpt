@@ -132,4 +132,5 @@ print("[TIME] Visualization takes: %.3f s" % vis_t) # CPU seconds elapsed (float
 plt.show()
 
 # plotter.save(os.path.join(os.path.abspath(os.path.dirname(__file__)), '../data/7dof_2.npz'))
-plotter.save(os.path.join(os.path.abspath(os.path.dirname(__file__)), '../data/7dof_2_closed.npz'))
+# plotter.save(os.path.join(os.path.abspath(os.path.dirname(__file__)), '../data/7dof_2_closed.npz'))
+# plotter.save(os.path.join(os.path.abspath(os.path.dirname(__file__)), '../data/7dof_2_closed_low_mu.npz'))
