@@ -207,7 +207,10 @@ class Plotter():
         return [[x_min, x_max], [y_min, y_max]]
     
     def plotRaceCar(self, ax, Z, transform):
-        w = 1.22
+        w = 1.4
+        l = 1.56 
+        lf = 0.858
+        lr = 0.702
         img_w = 400
         img_h = 198
         
@@ -216,7 +219,7 @@ class Plotter():
                     origin='lower',
                     extent=extent, clip_on=True)
 
-        trans_data = transform + ax.transData
+        trans_data = transform + ax.transData + mtransforms.Affine2D().translate(l/2-lr, 0)
         im.set_transform(trans_data)
 
         # # display intended extent of the image
@@ -269,6 +272,15 @@ class Plotter():
             # 5
             self.ax[ax_index].plot([start_5, end_5], [bl_5]*2, '-', color=CL['RED']*0.6, linewidth=3)
             self.ax[ax_index].plot([start_5, end_5], [br_5]*2, '-', color=CL['RED']*0.6, linewidth=3)
+        elif type(arg) is list:
+            # straight
+            left = arg[0]
+            middle = arg[1]
+            right = arg[2]
+            self.ax[ax_index].plot([0, 1000], [left]*2, '-', color=CL['BLK'], label='Boundary', linewidth=3)
+            self.ax[ax_index].plot([0, 1000], [right]*2, '-', color=CL['BLK'], linewidth=3)
+            self.ax[ax_index].plot([0, 1000], [middle]*2, '--', color=CL['BLK'], linewidth=1)
+            
         else:
             with open(arg) as stream:
                 data = yaml.safe_load(stream)
@@ -597,6 +609,24 @@ class Plotter():
         self.ax[ax_index].legend(loc=legend_loc, fontsize=legend_fontsize)
         self.ax[ax_index].set_xlim([0, self.t_sequence[-1]])
         
+    def plotActualdStateProgress(self, 
+                         ax_index, 
+                         state_index, 
+                         format,  # format of points and lines
+                         color=CL['RED'],
+                         xlabel='Curve length ($\%$)', ylabel='', legend='Actual',
+                         label_fontsize=15, legend_fontsize=10, legend_loc='upper right',
+                         linewidth=3, markersize=8, markeredgewidth=3, omit_start=100):
+        # omit_start: the starting data are vibrating and soaring high, therefore omitted
+        data = self.dx_arch[:, state_index]
+        self.ax[ax_index].plot(self.t_sequence[omit_start::self.interval] / self.t_sequence[omit_start::self.interval][-1] * 100, data[omit_start::self.interval], format, color=color, label=legend, 
+            linewidth=linewidth, markersize=markersize, markeredgewidth=markeredgewidth)
+        self.ax[ax_index].set_xlabel(xlabel, fontsize=label_fontsize)
+        self.ax[ax_index].set_ylabel(ylabel, fontsize=label_fontsize)
+        self.ax[ax_index].legend(loc=legend_loc, fontsize=legend_fontsize)
+        self.ax[ax_index].set_xlim([0, 100])
+
+        
     def plotActualAx(self, 
                      ax_index,
                      dvx_index,  # dstate
@@ -618,6 +648,28 @@ class Plotter():
         self.ax[ax_index].set_ylabel(ylabel, fontsize=label_fontsize)
         self.ax[ax_index].legend(loc=legend_loc, fontsize=legend_fontsize)
         self.ax[ax_index].set_xlim([0, self.t_sequence[-1]])
+        
+    def plotActualAxProgress(self, 
+                     ax_index,
+                     dvx_index,  # dstate
+                     vy_index,  # state
+                     dpsi_index,  # state
+                     format,  # format of points and lines
+                     color=CL['RED'],
+                     xlabel='', ylabel='', legend='Actual',
+                     label_fontsize=15, legend_fontsize=10, legend_loc='upper right',
+                     linewidth=3, markersize=8, markeredgewidth=3, omit_start=100):
+        # omit_start: the starting data are vibrating and soaring high, therefore omitted
+        dvx_data  = self.dx_arch[omit_start::self.interval, dvx_index]
+        vy_data   = self.x_arch[omit_start::self.interval, vy_index]
+        dpsi_data = self.x_arch[omit_start::self.interval, dpsi_index]
+        ax = dvx_data - dpsi_data * vy_data
+        self.ax[ax_index].plot(self.t_sequence[omit_start::self.interval] / self.t_sequence[omit_start::self.interval][-1] * 100, ax, format, color=color, label=legend, 
+            linewidth=linewidth, markersize=markersize, markeredgewidth=markeredgewidth)
+        self.ax[ax_index].set_xlabel(xlabel, fontsize=label_fontsize)
+        self.ax[ax_index].set_ylabel(ylabel, fontsize=label_fontsize)
+        self.ax[ax_index].legend(loc=legend_loc, fontsize=legend_fontsize)
+        self.ax[ax_index].set_xlim([0, 100])
     
     def plotActualAy(self, 
                      ax_index,
@@ -640,6 +692,28 @@ class Plotter():
         self.ax[ax_index].set_ylabel(ylabel, fontsize=label_fontsize)
         self.ax[ax_index].legend(loc=legend_loc, fontsize=legend_fontsize)
         self.ax[ax_index].set_xlim([0, self.t_sequence[-1]])
+        
+    def plotActualAyProgress(self, 
+                     ax_index,
+                     dvy_index,  # dstate
+                     vx_index,  # state
+                     dpsi_index,  # state
+                     format,  # format of points and lines
+                     color=CL['RED'],
+                     xlabel='', ylabel='', legend='Actual',
+                     label_fontsize=15, legend_fontsize=10, legend_loc='upper right',
+                     linewidth=3, markersize=8, markeredgewidth=3, omit_start=100):
+        # omit_start: the starting data are vibrating and soaring high, therefore omitted
+        dvy_data  = self.dx_arch[omit_start::self.interval, dvy_index]
+        vx_data   = self.x_arch[omit_start::self.interval, vx_index]
+        dpsi_data = self.x_arch[omit_start::self.interval, dpsi_index]
+        ay = dvy_data + dpsi_data * vx_data
+        self.ax[ax_index].plot(self.t_sequence[omit_start::self.interval] / self.t_sequence[omit_start::self.interval][-1] * 100, ay, format, color=color, label=legend, 
+            linewidth=linewidth, markersize=markersize, markeredgewidth=markeredgewidth)
+        self.ax[ax_index].set_xlabel(xlabel, fontsize=label_fontsize)
+        self.ax[ax_index].set_ylabel(ylabel, fontsize=label_fontsize)
+        self.ax[ax_index].legend(loc=legend_loc, fontsize=legend_fontsize)
+        self.ax[ax_index].set_xlim([0, 100])
 
     # CarInfo
     def plotActualCarInfo(self, 

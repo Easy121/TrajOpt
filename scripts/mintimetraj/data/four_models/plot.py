@@ -57,6 +57,7 @@ with open(path_to_ref_7dof_1, 'r') as stream:
 
 # # 1. path
 # plotter = Plotter(None, None, 1, width_ratios=[0, 0], figsize=(10, 5), mode='debug', interval=1)
+# # 3dof
 # plotter.t_sequence = data_3DOFnoLT['t_sequence']
 # plotter.x_arch = data_3DOFnoLT['x_arch']
 # plotter.plotTrack(0, path_to_track)
@@ -65,6 +66,7 @@ with open(path_to_ref_7dof_1, 'r') as stream:
 # plotter.t_sequence = data_3DOFLT['t_sequence']
 # plotter.x_arch = data_3DOFLT['x_arch']
 # plotter.plotOptXY(0, 3, ref_center, '-', color=CL['RED'], legend='3-DOF LT', legend_loc='upper right')
+# # 7dof
 # plotter.t_sequence = data_7DOFnoLT['t_sequence']
 # plotter.x_arch = data_7DOFnoLT['x_arch']
 # plotter.plotOptXY(0, 7, ref_center, '-', color=CL['BLU']*0.7, legend='7-DOF w/o LT', legend_loc='upper right')
@@ -176,20 +178,63 @@ with open(path_to_ref_7dof_1, 'r') as stream:
 # plotter.plotActualStateProgress(0, 9, '-', color=CL['BLU'], xlabel='Curve length ($\%$)', ylabel='$\delta$ ($rad/s$)', legend='7-DOF LT', legend_loc='lower left')
 # plt.savefig('/Users/gzj/FILES/SYNCHRON/T/Direction_Doctor/Motion Planning and Control of 2-IWD Autonomous Electric Racing Car under Limit Conditions/My Work/BachelorThesis/figure/results/time_optimal_solutions/four_models/Steering comparison of four models.pdf')
 
-# 6. delta
+# # 6. delta
+# plotter = Plotter(None, None, 1, width_ratios=[0, 0], figsize=(6, 5), mode='debug', interval=1)
+# plotter.t_sequence = data_3DOFnoLT['t_sequence']
+# plotter.u_arch = data_3DOFnoLT['u_arch']
+# plotter.plotActualInputProgress(0, 1, '-', color=CL['RED']*0.7, xlabel='Curve length ($\%$)', ylabel='$\delta$ ($rad/s$)', legend='3-DOF w/o LT', legend_loc='upper left')
+# plotter.t_sequence = data_3DOFLT['t_sequence']
+# plotter.x_arch = data_3DOFLT['x_arch']
+# plotter.plotActualStateProgress(0, 6, '-', color=CL['RED'], xlabel='Curve length ($\%$)', ylabel='$\delta$ ($rad/s$)', legend='3-DOF LT', legend_loc='upper left')
+# plotter.t_sequence = data_7DOFnoLT['t_sequence']
+# plotter.x_arch = data_7DOFnoLT['x_arch']
+# plotter.plotActualStateProgress(0, 10, '-', color=CL['BLU']*0.7, xlabel='Curve length ($\%$)', ylabel='$\delta$ ($rad/s$)', legend='7-DOF w/o LT', legend_loc='upper left')
+# plotter.t_sequence = data_7DOFLT['t_sequence']
+# plotter.x_arch = data_7DOFLT['x_arch']
+# plotter.plotActualStateProgress(0, 10, '-', color=CL['BLU'], xlabel='Curve length ($\%$)', ylabel='$\delta$ ($rad/s$)', legend='7-DOF LT', legend_loc='lower left')
+# plt.savefig('/Users/gzj/FILES/SYNCHRON/T/Direction_Doctor/Motion Planning and Control of 2-IWD Autonomous Electric Racing Car under Limit Conditions/My Work/BachelorThesis/figure/results/time_optimal_solutions/four_models/Torque comparison of four models.pdf')
+
+# 7. ax
 plotter = Plotter(None, None, 1, width_ratios=[0, 0], figsize=(6, 5), mode='debug', interval=1)
 plotter.t_sequence = data_3DOFnoLT['t_sequence']
-plotter.u_arch = data_3DOFnoLT['u_arch']
-plotter.plotActualInputProgress(0, 1, '-', color=CL['RED']*0.7, xlabel='Curve length ($\%$)', ylabel='$\delta$ ($rad/s$)', legend='3-DOF w/o LT', legend_loc='upper left')
+plotter.x_arch = data_3DOFnoLT['x_arch']
+plotter.dx_arch = data_3DOFnoLT['dx_arch']
+plotter.plotActualAxProgress(0, 0, 1, 2, '-', color=CL['RED']*0.7, xlabel='Curve length ($\%$)', ylabel='$a_x$ ($m/s^2$)', legend='3-DOF w/o LT', legend_loc='upper left', omit_start=0)
 plotter.t_sequence = data_3DOFLT['t_sequence']
 plotter.x_arch = data_3DOFLT['x_arch']
-plotter.plotActualStateProgress(0, 6, '-', color=CL['RED'], xlabel='Curve length ($\%$)', ylabel='$\delta$ ($rad/s$)', legend='3-DOF LT', legend_loc='upper left')
+plotter.dx_arch = data_3DOFLT['dx_arch']
+plotter.plotActualAxProgress(0, 0, 1, 2, '-', color=CL['RED'], xlabel='Curve length ($\%$)', ylabel='$a_x$ ($m/s^2$)', legend='3-DOF LT', legend_loc='upper left', omit_start=0)
 plotter.t_sequence = data_7DOFnoLT['t_sequence']
 plotter.x_arch = data_7DOFnoLT['x_arch']
-plotter.plotActualStateProgress(0, 10, '-', color=CL['BLU']*0.7, xlabel='Curve length ($\%$)', ylabel='$\delta$ ($rad/s$)', legend='7-DOF w/o LT', legend_loc='upper left')
+plotter.dx_arch = data_7DOFnoLT['dx_arch']
+plotter.plotActualAxProgress(0, 0, 1, 2, '-', color=CL['BLU']*0.7, xlabel='Curve length ($\%$)', ylabel='$a_x$ ($m/s^2$)', legend='7-DOF w/o LT', legend_loc='upper left', omit_start=0)
 plotter.t_sequence = data_7DOFLT['t_sequence']
 plotter.x_arch = data_7DOFLT['x_arch']
-plotter.plotActualStateProgress(0, 10, '-', color=CL['BLU'], xlabel='Curve length ($\%$)', ylabel='$\delta$ ($rad/s$)', legend='7-DOF LT', legend_loc='lower left')
-plt.savefig('/Users/gzj/FILES/SYNCHRON/T/Direction_Doctor/Motion Planning and Control of 2-IWD Autonomous Electric Racing Car under Limit Conditions/My Work/BachelorThesis/figure/results/time_optimal_solutions/four_models/Torque comparison of four models.pdf')
+plotter.dx_arch = data_7DOFLT['dx_arch']
+plotter.plotActualAxProgress(0, 0, 1, 2, '-', color=CL['BLU'], xlabel='Curve length ($\%$)', ylabel='$a_x$ ($m/s^2$)', legend='7-DOF LT', legend_loc='lower left', omit_start=0)
+# plt.savefig('/Users/gzj/FILES/SYNCHRON/T/Direction_Doctor/Motion Planning and Control of 2-IWD Autonomous Electric Racing Car under Limit Conditions/My Work/BachelorThesis/figure/results/time_optimal_solutions/four_models/'
+#             'Longitudinal acceleration comparison of four models.pdf')
+
+# 8. ay
+plotter = Plotter(None, None, 1, width_ratios=[0, 0], figsize=(6, 5), mode='debug', interval=1)
+plotter.t_sequence = data_3DOFnoLT['t_sequence']
+plotter.x_arch = data_3DOFnoLT['x_arch']
+plotter.dx_arch = data_3DOFnoLT['dx_arch']
+plotter.plotActualAyProgress(0, 1, 0, 2, '-', color=CL['RED']*0.7, xlabel='Curve length ($\%$)', ylabel='$a_y$ ($m/s^2$)', legend='3-DOF w/o LT', legend_loc='upper left', omit_start=0)
+plotter.t_sequence = data_3DOFLT['t_sequence']
+plotter.x_arch = data_3DOFLT['x_arch']
+plotter.dx_arch = data_3DOFLT['dx_arch']
+plotter.plotActualAyProgress(0, 1, 0, 2, '-', color=CL['RED'], xlabel='Curve length ($\%$)', ylabel='$a_y$ ($m/s^2$)', legend='3-DOF LT', legend_loc='upper left', omit_start=0)
+plotter.t_sequence = data_7DOFnoLT['t_sequence']
+plotter.x_arch = data_7DOFnoLT['x_arch']
+plotter.dx_arch = data_7DOFnoLT['dx_arch']
+plotter.plotActualAyProgress(0, 1, 0, 2, '-', color=CL['BLU']*0.7, xlabel='Curve length ($\%$)', ylabel='$a_y$ ($m/s^2$)', legend='7-DOF w/o LT', legend_loc='upper left', omit_start=0)
+plotter.t_sequence = data_7DOFLT['t_sequence']
+plotter.x_arch = data_7DOFLT['x_arch']
+plotter.dx_arch = data_7DOFLT['dx_arch']
+plotter.plotActualAyProgress(0, 1, 0, 2, '-', color=CL['BLU'], xlabel='Curve length ($\%$)', ylabel='$a_y$ ($m/s^2$)', legend='7-DOF LT', legend_loc='lower left', omit_start=0)
+# plt.savefig('/Users/gzj/FILES/SYNCHRON/T/Direction_Doctor/Motion Planning and Control of 2-IWD Autonomous Electric Racing Car under Limit Conditions/My Work/BachelorThesis/figure/results/time_optimal_solutions/four_models/'
+#             'Lateral acceleration comparison of four models.pdf')
+
 
 plt.show()

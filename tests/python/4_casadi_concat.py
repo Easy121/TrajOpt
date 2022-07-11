@@ -29,3 +29,10 @@ B1[2] = c
 print(B1)
 print(ca.sum1(B1))
 print(ca.vertcat((b - x * a) * y, a))
+
+print('')
+t_total = ca.MX.sym('t_total', 1)
+dt = t_total / 1000
+print(dt)
+
+
