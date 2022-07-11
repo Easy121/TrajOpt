@@ -27,9 +27,10 @@ CL = {'BLU': np.array([0, 114, 189])/255,
 
 """ Construct Problem """
 
-# init and ref
+# init and ref, both X and Y should not be 0
 init = [0.0, 0.0, 0.0]
-ref = [5.0, 1.0, 0.1]
+# ref = [10.0, 1.0, np.pi]
+ref = [4.0, -2.0, np.pi/2]
 # object
 traj = Parking_Opt(init, ref, None)
 

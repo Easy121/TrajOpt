@@ -19,10 +19,6 @@ import yaml
 
 class Parking_Opt:
     def __init__(self, init, ref, obs) -> None:
-        # init and ref are lists with [X, Y, Psi]
-        self.init = init
-        self.ref = ref
-        
         # obstacle description
         self.obs = obs
         
@@ -35,6 +31,10 @@ class Parking_Opt:
         self.nx = 5
         # a, ddelta
         self.nu = 2
+
+        # init and ref
+        self.init = list(np.array(init + [0.0, 0.0]) / self.model.x_s)
+        self.ref = list(np.array(ref + [0.0, 0.0]) / self.model.x_s)
         
         
     def optimize(self):
@@ -92,7 +92,7 @@ class Parking_Opt:
         w = [t_total]
         w0 = [[10]]  # TODO determine automatically
         lbw = [[0.0]]
-        ubw = [[np.inf]]
+        ubw = [[60]]
         J = 100 * t_total
         g = []
         lbg = []
@@ -109,10 +109,9 @@ class Parking_Opt:
         X0 = Xk
         w.append(Xk)
         # * dimension check
-        state_init = self.init + [0.0, 0.0]
-        lbw.append(state_init)  # equality constraint on init
-        ubw.append(state_init)
-        w0.append(state_init)
+        lbw.append(self.init)  # equality constraint on init
+        ubw.append(self.init)
+        w0.append(self.init)
         x_opt.append(Xk * self.model.x_s)
 
         # Formulate the NLP
@@ -176,8 +175,8 @@ class Parking_Opt:
             # ubg.append(self.model.getConstraintMax())
 
         g.append(Xk)  # reference final pose
-        lbg.append(self.ref + [0.0, 0.0])
-        ubg.append(self.ref + [0.0, 0.0])
+        lbg.append(self.ref)
+        ubg.append(self.ref)
 
         # Concatenate vectors
         w = ca.vertcat(*w)

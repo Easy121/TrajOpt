@@ -28,3 +28,8 @@ ref = [-19, -20, 0.6]
 print(np.max([np.abs(init[0]), np.abs(ref[0])]))
 print(np.max([np.abs(init[1]), np.abs(ref[1])]))
 
+
+print('')
+print(list(np.array([1, 2, 3]) / np.array([2, 4, 6])))
+print(type(list(np.array([1, 2, 3]) / np.array([2, 4, 6]))))
+
