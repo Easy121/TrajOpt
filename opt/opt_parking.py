@@ -31,10 +31,9 @@ class Parking_Opt:
         self.nx = 5
         # a, ddelta
         self.nu = 2
-
         # init and ref
-        self.init = list(np.array(init + [0.0, 0.0]) / self.model.x_s)
-        self.ref = list(np.array(ref + [0.0, 0.0]) / self.model.x_s)
+        self.init = list(np.array(self.model.init + [0.0, 0.0]) / self.model.x_s)
+        self.ref = list(np.array(self.model.ref + [0.0, 0.0]) / self.model.x_s)
         
         
     def optimize(self):
@@ -91,8 +90,8 @@ class Parking_Opt:
         # Start with t_total in
         w = [t_total]
         w0 = [[10]]  # TODO determine automatically
-        lbw = [[0.0]]
-        ubw = [[60]]
+        lbw = [[1]]  # set minimum time to 1s to avoid 0s solution
+        ubw = [[60]]  # set maximum time to 60s
         J = 100 * t_total
         g = []
         lbg = []
@@ -201,7 +200,7 @@ class Parking_Opt:
         # solver options
         opts = {"expand": True,
                 "verbose": True,
-                "ipopt.max_iter": 500,
+                "ipopt.max_iter": 600,
                 "ipopt.tol": 1e-7,
         }
 

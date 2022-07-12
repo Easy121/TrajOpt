@@ -15,8 +15,9 @@ import casadi as ca
 class Kine3dof:
     def __init__(self, init, ref, obs) -> None:
         # init and ref are lists with [X, Y, Psi]
-        self.init = init
-        self.ref = ref
+        self.init_position = np.array([init[0], init[1]])
+        self.init = [0.0, 0.0, init[2]]
+        self.ref = [ref[0]-init[0], ref[1]-init[1], ref[2]]
         
         # obstacle description
         self.obs = obs
@@ -40,8 +41,15 @@ class Kine3dof:
         v_n     = ca.SX.sym('v')
         delta_n = ca.SX.sym('delta')
         # the scaling for state vector (same as their maximum value)
-        self.X_s    = np.max([np.abs(self.init[0]), np.abs(self.ref[0])])
-        self.Y_s    = np.max([np.abs(self.init[1]), np.abs(self.ref[1])])
+        # * 1. no scaling 
+        # self.X_s    = 1
+        # self.Y_s    = 1
+        # * 2. different scaling (tested to be the fastest)
+        self.X_s    = np.abs(self.ref[0]) * 1.2 
+        self.Y_s    = np.abs(self.ref[1]) * 1.2
+        # * 3. uniform scaling 
+        # self.X_s = np.max([np.abs(self.ref[0]), np.abs(self.ref[1])]) * 1.2  # 1.2 for space expansion
+        # self.Y_s = self.X_s
         self.Psi_s  = np.pi
         self.v_s     = 2.5
         self.delta_s = 0.75
@@ -85,7 +93,14 @@ class Kine3dof:
         dx = ca.vertcat(dX, dY, dPsi, a, ddelta) / self.x_s
 
         # Objective term
-        L = 10 * (a * a + v * v * dPsi * dPsi)
+        # * C3
+        # * C4
+        # * orient as soon as possible
+        L = 10 * (a * a + v * v * dPsi * dPsi) + \
+            10 * delta * delta
+        # L = 10 * (a * a + v * v * dPsi * dPsi) + \
+        #     10 * delta * delta + \
+        #     10 * (Psi - self.ref[2]) * (Psi - self.ref[2]) 
 
         # Continuous time dynamics
         self.f = ca.Function('f', [x, u], [dx, L], ['x', 'u'], ['dx', 'L'])
@@ -112,7 +127,7 @@ class Kine3dof:
         state_min = [
             -np.inf,  # X
             -np.inf,  # Y
-            -np.inf,  # Psi
+            self.init[2] - np.pi,  # Psi, constrained to one round for fast solving
             -2.5 / self.v_s,  # v
             -0.75 / self.delta_s,  # delta
         ]
@@ -122,7 +137,7 @@ class Kine3dof:
         state_max = [
             np.inf,  # X
             np.inf,  # Y 
-            np.inf,  # Psi
+            self.init[2] + np.pi,  # Psi, constrained to one round for fast solving
             2.5 / self.v_s,  # v
             0.75 / self.delta_s,  # delta
         ]
