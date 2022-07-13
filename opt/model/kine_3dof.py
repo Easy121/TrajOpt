@@ -96,11 +96,11 @@ class Kine3dof:
         # * C3
         # * C4
         # * orient as soon as possible
-        L = 10 * (a * a + v * v * dPsi * dPsi) + \
-            10 * delta * delta
         # L = 10 * (a * a + v * v * dPsi * dPsi) + \
-        #     10 * delta * delta + \
-        #     10 * (Psi - self.ref[2]) * (Psi - self.ref[2]) 
+        #     10 * delta * delta
+        L = 10 * (a * a + v * v * dPsi * dPsi) + \
+            10 * delta * delta + \
+            10 * (Psi - self.ref[2]) * (Psi - self.ref[2]) 
 
         # Continuous time dynamics
         self.f = ca.Function('f', [x, u], [dx, L], ['x', 'u'], ['dx', 'L'])

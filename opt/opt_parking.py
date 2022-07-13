@@ -23,7 +23,7 @@ class Parking_Opt:
         self.obs = obs
         
         # number of intermediate state
-        self.N = 500  # TODO determine automatically
+        self.N = 100  # TODO determine automatically
         
         # model is trivial in parking problem, the crux becomes constraint formulation
         self.model = Kine3dof(init, ref, obs)
@@ -46,7 +46,7 @@ class Parking_Opt:
         ############################################################
         
         # Degree of interpolating polynomial
-        d = 3
+        d = 1  # used to be 3 for complex model
 
         # Get collocation points
         tau = np.append(0, ca.collocation_points(d, 'legendre'))
@@ -234,7 +234,7 @@ class Parking_Opt:
         print("")
         print("[INFO] Number of optimized raw points: %d" % self.N)
         print("[INFO] Number of optimized decision variables: %d" % w.shape[0])
-        print("[RESULT] Minimum parking time: %.3f s" % self.t_opt[-1])
         print("[TIME] Formulation takes: %.3f s" % (t_formulation_end - t_formulation_start))
         print("[TIME] Solving takes: %.3f s" % (t_solve_end - t_solve_start))
+        print("[RESULT] Minimum parking time: %.3f s" % self.t_opt[-1])
         
