@@ -1,7 +1,7 @@
 """ 
-The first test of automatic parking
+Test of automatic parking
 * kinematic model
-* no obstacle
+* with point obstacle
 """
 
 
@@ -27,16 +27,26 @@ CL = {'BLU': np.array([0, 114, 189])/255,
 
 """ Construct Problem """
 
-# init and ref
-# 18
-init = [7.96019900497512, -0.820895522388057, -0.292805411327151]
-ref = [7.61194029850746, 4.65174129353235, -2.58609891832425]
-# 19
-# init = [-19.6068546105738, -3.37405083638875, 3.13250199492473]
-# ref = [18.479787409779, 1.93860023735124, 0.94405342558385]
+""" init and ref """
+# 1 straight path TROUBLE
+init = [0.0, 0.0, 0.0]
+ref = [30.0, 0.0, 0.0]
+obs = [[15.0, 0]]
+
+# # 2 diagonal path SUCCESS
+# init = [0.0, 0.0, np.pi/4]
+# ref = [8.0, 8.0, np.pi/4]
+# obs = [[4, 4]]
+
+# # 3 diamond
+# init = [0.0, 0.0, 0.0]
+# ref = [30.0, 0.0, 0.0]
+# obs = [np.array([[14, 0], [15, 1]]), np.array([[15, 1], [16, 0]]), np.array([[16, 0], [15, -1]]), np.array([[15, -1], [14, 0]])]
+# # obs = [np.array([[0, 5], [10, -2]])]
 
 # object
-traj = Parking_Opt(init, ref, None)
+# traj = Parking_Opt(init, ref, None)
+traj = Parking_Opt(init, ref, obs)
 
 
 """ Optimize """

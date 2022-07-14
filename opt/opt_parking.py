@@ -139,7 +139,7 @@ class Parking_Opt:
                 lbw.append([-np.inf] * self.nx)
                 ubw.append([np.inf] * self.nx)
                 # * dimension check
-                w0.append(self.model.getStateGuess(k))
+                w0.append(self.model.getStateGuess(k/(self.N-1)))
 
             # Loop over collocation points
             Xk_end = D[0] * Xk
@@ -166,7 +166,7 @@ class Parking_Opt:
             w.append(Xk)
             lbw.append(self.model.getStateMin(k))
             ubw.append(self.model.getStateMax(k))
-            w0.append(self.model.getStateGuess(k))
+            w0.append(self.model.getStateGuess(k/(self.N-1)))
             x_opt.append(Xk * self.model.x_s)
             u_opt.append(Uk * self.model.u_s)
             dx_opt.append(self.model.f_d(Xk, Uk))
