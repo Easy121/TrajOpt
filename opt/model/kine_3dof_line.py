@@ -4,6 +4,8 @@ Copyright (C) 2022:
 All Rights Reserved.
 Kinematic bicycle model with 3 DOFs
 * This model corresponds to the one stipulated in TPCAP (https://www.tpcap.net/#/rules)
+* This model uses the intersection of line segments as constraints, which is proved to be infeasible.
+*   The constraints provide no gradient information, thus the optimization frequently go wrong. 
 """
 
 
@@ -11,7 +13,7 @@ import numpy as np
 import casadi as ca
 
 
-class Kine3dof:
+class Kine3dofLine:
     def __init__(self, init, ref, obs) -> None:
         # init and ref are lists with [X, Y, Psi]
         self.init_position = np.array([init[0], init[1]])

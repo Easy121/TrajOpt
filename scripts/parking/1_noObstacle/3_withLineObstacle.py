@@ -1,9 +1,8 @@
 """ 
-The first test of automatic parking
+Test of automatic parking
 * kinematic model
-* no obstacle
+* with line segment obstacle (infeasible)
 """
-# DONE full visualization
 
 
 from opt.calc import *
@@ -28,10 +27,23 @@ CL = {'BLU': np.array([0, 114, 189])/255,
 
 """ Construct Problem """
 
-# init and ref
+""" init and ref """
+# 1 straight path
 init = [0.0, 0.0, 0.0]
-ref = [10.0, 0.0, 0.0]
-obs = [np.array([[5, 2], [5, -2]])]
+ref = [30.0, 0.0, 0.0]
+obs = [np.array([[15, 2], [15, -2]])]
+# obs = [np.array([[0, 5], [10, -2]])]
+
+# # 2 diagonal path
+# init = [0.0, 0.0, np.pi/4]
+# ref = [8.0, 8.0, np.pi/4]
+# obs = [np.array([[5, 3], [3, 5]])]
+
+# # 3 diamond
+# init = [0.0, 0.0, 0.0]
+# ref = [30.0, 0.0, 0.0]
+# obs = [np.array([[14, 0], [15, 1]]), np.array([[15, 1], [16, 0]]), np.array([[16, 0], [15, -1]]), np.array([[15, -1], [14, 0]])]
+# # obs = [np.array([[0, 5], [10, -2]])]
 
 # object
 # traj = Parking_Opt(init, ref, None)

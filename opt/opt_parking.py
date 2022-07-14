@@ -8,6 +8,7 @@ The library for automatic parking
 
 from . import calc
 # new model added here
+from .model.kine_3dof_line import Kine3dofLine
 from .model.kine_3dof import Kine3dof
 
 import time
@@ -22,8 +23,12 @@ class Parking_Opt:
         # obstacle description
         self.obs = obs
         
-        # model is trivial in parking problem, the crux becomes constraint formulation
+        """ Model 
+        model is trivial in parking problem, the crux becomes constraint formulation """
+        
+        # self.model = Kine3dofLine(init, ref, obs)  # infeasible
         self.model = Kine3dof(init, ref, obs)
+        
         # X, Y, Psi, v, delta
         self.nx = 5
         # a, ddelta
@@ -170,7 +175,7 @@ class Parking_Opt:
             g.append(Xk_end-Xk)  # compact form
             lbg.append([0.0] * self.nx)
             ubg.append([0.0] * self.nx)
-            # TODO add constraints here
+            # DONE add constraints here
             if self.obs is not None:
                 g = g + self.model.f_g(Xk)
                 lbg.append(self.model.getConstraintMin())
