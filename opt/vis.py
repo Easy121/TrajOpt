@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import matplotlib.transforms as mtransforms
-from matplotlib.patches import Ellipse
+import matplotlib.patches as patches
 import yaml
 
 # Structure of the full plot
@@ -227,11 +227,36 @@ class Plotter():
         # ax.plot([x1, x2, x2, x1, x1], [y1, y1, y2, y2, y1], "y--",
         #         transform=trans_data)
         
+    def plotSquareCar(self, ax, X, Y, Psi, color=CL['BLU'] ,label=None, alpha=0.5, zorder=0):
+        # model parameters
+        lw = 2.8  # wheelbase
+        lf = 0.96  # front overhang length
+        lr = 0.929  # rear overhang length
+        w = 1.924  # width
+
+        # vehicle body patch
+        if label is not None:
+            rectangle = patches.Rectangle((0,0), lw+lf+lr, w, fill=False, linewidth=3, edgecolor=color, alpha=alpha, label=label, zorder=zorder)
+        else:
+            rectangle = patches.Rectangle((0,0), lw+lf+lr, w, fill=False, linewidth=3, edgecolor=color, alpha=alpha, zorder=zorder)
+        transform = mtransforms.Affine2D().translate(-lr, -w/2).rotate_around(0, 0, Psi).translate(X, Y) + ax.transData
+        rectangle.set_transform(transform)
+        ax.add_patch(rectangle)
+        
+    def plotArrow(self, ax, X, Y, Psi, color=CL['RED'], label=None, arrow_length=1, arrow_width=0.1, zorder=0):
+        # vehicle orientation arrow and origin
+        ax.arrow(X, Y, arrow_length*np.cos(Psi), arrow_length*np.sin(Psi), width=arrow_width, color=color, zorder=zorder)
+        if label is not None:
+            circle = patches.Circle((X, Y), 0.1, color=color, label=label, zorder=zorder)
+        else:
+            circle = patches.Circle((X, Y), 0.1, color=color, zorder=zorder)
+        ax.add_patch(circle)
+        
     def plotFrictionEllipse(self, ax_index, Fm  # list, [Fxm, Fym]
                             , mu  # road adhesion coefficient
                             , color='k', alpha=0.08, legend='Friction ellipse'):
         # Friction ellipse
-        ellipse = Ellipse(xy=(0, 0), width=Fm[0]*mu*2, height=Fm[1]*mu*2, ec='None', fc=color, alpha=alpha, label=legend)
+        ellipse = patches.Ellipse(xy=(0, 0), width=Fm[0]*mu*2, height=Fm[1]*mu*2, ec='None', fc=color, alpha=alpha, label=legend)
         self.ax[ax_index].add_patch(ellipse)
 
     ###################################
@@ -395,16 +420,16 @@ class Plotter():
         self.ax[ax_index].legend(loc=legend_loc, fontsize=legend_fontsize)
         
     def plotActualXYFrame(self, 
-                     ax_index, 
-                     X_index, 
-                     Y_index, 
-                     Psi_index,
-                     num_of_frames,
-                     format,  # format of points and lines
-                     color=CL['BLK'],
-                     xlabel='$X$ ($m$)', ylabel='$Y$ ($m$)', legend='Actual',
-                     label_fontsize=15, legend_fontsize=10, legend_loc='upper right',
-                     linewidth=3, markersize=8, markeredgewidth=3, set_plot_range=False, axis_equal=True):
+                          ax_index, 
+                          X_index, 
+                          Y_index, 
+                          Psi_index,
+                          num_of_frames,
+                          format,  # format of points and lines
+                          color=CL['BLK'],
+                          xlabel='$X$ ($m$)', ylabel='$Y$ ($m$)', legend='Actual',
+                          label_fontsize=15, legend_fontsize=10, legend_loc='upper right',
+                          linewidth=3, markersize=8, markeredgewidth=3, set_plot_range=False, axis_equal=True):
         # plot the vehicle locations in frames, like a movie
         data_X = self.x_arch[:, X_index]
         data_Y = self.x_arch[:, Y_index]
@@ -437,6 +462,71 @@ class Plotter():
         else:
             if axis_equal == True:
                 self.ax[ax_index].axis('equal')
+        self.ax[ax_index].set_xlabel(xlabel, fontsize=label_fontsize)
+        self.ax[ax_index].set_ylabel(ylabel, fontsize=label_fontsize)
+        self.ax[ax_index].legend(loc=legend_loc, fontsize=legend_fontsize)
+        
+    def plotParkingXY(self, 
+                      ax_index, 
+                      X_index, 
+                      Y_index, 
+                      Psi_index,
+                      xlabel='$X$ ($m$)', ylabel='$Y$ ($m$)',
+                      label_fontsize=15, legend_fontsize=10, legend_loc='upper right',
+                      linewidth=3, markersize=8, markeredgewidth=3):
+        data_X = self.x_arch[:, X_index]
+        data_Y = self.x_arch[:, Y_index]
+        data_Psi   = self.x_arch[:, Psi_index]
+        
+        self.plotSquareCar(self.ax[ax_index], data_X[0], data_Y[0], data_Psi[0], label='Vehicle body')
+        self.plotSquareCar(self.ax[ax_index], data_X[-1], data_Y[-1], data_Psi[-1])
+        self.plotArrow(self.ax[ax_index], data_X[0], data_Y[0], data_Psi[0], label='Start and end pose')
+        self.plotArrow(self.ax[ax_index], data_X[-1], data_Y[-1], data_Psi[-1])
+        
+        # orignal plot
+        self.ax[ax_index].plot(data_X[0::self.interval], data_Y[0::self.interval], '-', color=CL['BLK'], label='Planned Trajectory', 
+            linewidth=linewidth, markersize=markersize, markeredgewidth=markeredgewidth)
+
+        self.ax[ax_index].axis('equal')
+        self.ax[ax_index].set_xlabel(xlabel, fontsize=label_fontsize)
+        self.ax[ax_index].set_ylabel(ylabel, fontsize=label_fontsize)
+        self.ax[ax_index].legend(loc=legend_loc, fontsize=legend_fontsize)
+        
+    def plotParkingXYFrame(self, 
+                           ax_index, 
+                           X_index, 
+                           Y_index, 
+                           Psi_index,
+                           num_of_frames,
+                           xlabel='$X$ ($m$)', ylabel='$Y$ ($m$)',
+                           label_fontsize=15, legend_fontsize=10, legend_loc='upper right',
+                           linewidth=3, markersize=8, markeredgewidth=3):
+        data_X = self.x_arch[:, X_index]
+        data_Y = self.x_arch[:, Y_index]
+        data_Psi   = self.x_arch[:, Psi_index]
+        
+        self.plotArrow(self.ax[ax_index], data_X[0], data_Y[0], data_Psi[0], label='Terminal pose', zorder=100)
+        self.plotArrow(self.ax[ax_index], data_X[-1], data_Y[-1], data_Psi[-1], zorder=100)
+        self.plotSquareCar(self.ax[ax_index], data_X[0], data_Y[0], data_Psi[0], label='Terminal vehicle body', color=CL['BLK'], alpha=1, zorder=100)
+        self.plotSquareCar(self.ax[ax_index], data_X[-1], data_Y[-1], data_Psi[-1], color=CL['BLK'], alpha=1, zorder=100)
+        
+        frames = np.linspace(0, data_X.size, num_of_frames)
+        is_label = False
+        for frame in frames:
+            frame_index = int(frame)
+            if frame_index == data_X.size:
+                frame_index -= 1
+            if is_label is False:
+                self.plotSquareCar(self.ax[ax_index], data_X[frame_index], data_Y[frame_index], data_Psi[frame_index], label='Vehicle body')
+                is_label = True
+            else:
+                self.plotSquareCar(self.ax[ax_index], data_X[frame_index], data_Y[frame_index], data_Psi[frame_index])
+                
+        # orignal plot
+        self.ax[ax_index].plot(data_X[0::self.interval], data_Y[0::self.interval], '-', color=CL['BLK'], label='Planned Trajectory', 
+            linewidth=linewidth, markersize=markersize, markeredgewidth=markeredgewidth)
+
+        self.ax[ax_index].axis('equal')
         self.ax[ax_index].set_xlabel(xlabel, fontsize=label_fontsize)
         self.ax[ax_index].set_ylabel(ylabel, fontsize=label_fontsize)
         self.ax[ax_index].legend(loc=legend_loc, fontsize=legend_fontsize)

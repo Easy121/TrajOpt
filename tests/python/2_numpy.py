@@ -33,3 +33,13 @@ print('')
 print(list(np.array([1, 2, 3]) / np.array([2, 4, 6])))
 print(type(list(np.array([1, 2, 3]) / np.array([2, 4, 6]))))
 
+
+print('')
+print(np.square(1))
+print(np.min([1, 2]))
+
+
+print('')
+x = [1]
+x = x + [1, 2]
+print(x)

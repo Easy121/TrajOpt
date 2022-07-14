@@ -30,12 +30,12 @@ CL = {'BLU': np.array([0, 114, 189])/255,
 
 # init and ref
 init = [0.0, 0.0, 0.0]
-# ref = [4.0, -2.0, np.pi/2]
-# ref = [10.0, 1.0, np.pi]
-ref = [-5.0, 0.0, np.pi/2]
+ref = [10.0, 0.0, 0.0]
+obs = [np.array([[5, 2], [5, -2]])]
 
 # object
-traj = Parking_Opt(init, ref, None)
+# traj = Parking_Opt(init, ref, None)
+traj = Parking_Opt(init, ref, obs)
 
 
 """ Optimize """

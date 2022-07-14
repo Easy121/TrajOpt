@@ -22,9 +22,6 @@ class Parking_Opt:
         # obstacle description
         self.obs = obs
         
-        # number of intermediate state
-        self.N = 100  # TODO determine automatically
-        
         # model is trivial in parking problem, the crux becomes constraint formulation
         self.model = Kine3dof(init, ref, obs)
         # X, Y, Psi, v, delta
@@ -34,6 +31,11 @@ class Parking_Opt:
         # init and ref
         self.init = list(np.array(self.model.init + [0.0, 0.0]) / self.model.x_s)
         self.ref = list(np.array(self.model.ref + [0.0, 0.0]) / self.model.x_s)
+        
+        """ number of intermediate state """
+        # first calculate the distance, and determine N based on dis
+        dis = np.floor(np.sqrt(np.square(self.model.ref[0]) + np.square(self.model.ref[1])))
+        self.N = np.max([int(dis * 2), 40])
         
         
     def optimize(self):
@@ -169,9 +171,10 @@ class Parking_Opt:
             lbg.append([0.0] * self.nx)
             ubg.append([0.0] * self.nx)
             # TODO add constraints here
-            # g.append(self.model.f_g(Xk, Uk))
-            # lbg.append(self.model.getConstraintMin())
-            # ubg.append(self.model.getConstraintMax())
+            if self.obs is not None:
+                g = g + self.model.f_g(Xk)
+                lbg.append(self.model.getConstraintMin())
+                ubg.append(self.model.getConstraintMax())
 
         g.append(Xk)  # reference final pose
         lbg.append(self.ref)
@@ -202,6 +205,8 @@ class Parking_Opt:
                 "verbose": True,
                 "ipopt.max_iter": 600,
                 "ipopt.tol": 1e-7,
+                "ipopt.linear_solver": 'mumps',
+                # "ipopt.linear_solver": 'ma57',
         }
 
         prob = {'f': J, 'x': w, 'g': g}
@@ -225,7 +230,7 @@ class Parking_Opt:
         self.x_opt = x_opt.full().T # to numpy array, the first x_opt is idle but kept for completeness
         self.u_opt = np.vstack((np.array([0.0]*self.nu), u_opt.full().T)) # to numpy array
         self.dx_opt = np.vstack((np.array([0.0]*self.nx), dx_opt.full().T)) # to numpy array
-        self.t_opt = np.linspace(0, t_total, self.N + 1)
+        self.t_opt = np.linspace(0, t_total.full()[0][0], self.N + 1)
         
         ############################################################
         # Information ##############################################

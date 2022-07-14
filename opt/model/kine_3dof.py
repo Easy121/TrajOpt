@@ -7,7 +7,6 @@ Kinematic bicycle model with 3 DOFs
 """
 
 
-from re import A
 import numpy as np
 import casadi as ca
 
@@ -21,6 +20,8 @@ class Kine3dof:
         
         # obstacle description
         self.obs = obs
+        if self.obs is not None:
+            self.n_obs = len(obs)
         
         # X, Y, Psi, v, delta
         self.nx = 5
@@ -45,8 +46,8 @@ class Kine3dof:
         # self.X_s    = 1
         # self.Y_s    = 1
         # * 2. different scaling (tested to be the fastest)
-        self.X_s    = np.abs(self.ref[0]) * 1.2 
-        self.Y_s    = np.abs(self.ref[1]) * 1.2
+        self.X_s = np.max([np.abs(self.ref[0]) * 1.2, 1])
+        self.Y_s = np.max([np.abs(self.ref[1]) * 1.2, 1])
         # * 3. uniform scaling 
         # self.X_s = np.max([np.abs(self.ref[0]), np.abs(self.ref[1])]) * 1.2  # 1.2 for space expansion
         # self.Y_s = self.X_s
@@ -81,6 +82,10 @@ class Kine3dof:
         lf = 0.96  # front overhang length
         lr = 0.929  # rear overhang length
         w = 1.924  # width
+        self.fl = np.sqrt(np.square(lw+lf)+np.square(w/2))  # front length for obstacle constraint
+        self.rl = np.sqrt(np.square(lr)+np.square(w/2))   # rear length for obstacle constraint
+        self.fa = np.arctan(w/2/(lw+lf))  # front angle for obstacle constraint
+        self.ra = np.pi - np.arctan(w/2/(lr))  # rear angle for obstacle constraint
         
         # model descriptions
         dX   = v * ca.cos(Psi)
@@ -117,6 +122,46 @@ class Kine3dof:
     
     def getInputGuess(self, k):
         return [0.0] * self.nu
+    
+    ############################################################
+    # Obstacles ################################################
+    ############################################################
+    
+    def f_g(self, Xk):
+        g = []
+        X = Xk[0]
+        Y = Xk[1]
+        Psi = Xk[2]
+        
+        for l2 in self.obs:
+            # right vehicle body line segment
+            l1 = [
+                [X + self.fl * ca.cos(- self.fa + Psi), Y + self.fl * ca.sin(- self.fa + Psi)],
+                [X + self.rl * ca.cos(- self.ra + Psi), Y + self.rl * ca.sin(- self.ra + Psi)],
+            ]
+            sign1 = ((l2[0][1] - l1[1][1]) * (l1[0][0] - l1[1][0]) - (l2[0][0] - l1[1][0]) * (l1[0][1] - l1[1][1])) * \
+                ((l2[1][1] - l1[1][1]) * (l1[0][0] - l1[1][0]) - (l2[1][0] - l1[1][0]) * (l1[0][1] - l1[1][1]))
+            sign2 = ((l1[0][1] - l2[1][1]) * (l2[0][0] - l2[1][0]) - (l1[0][0] - l2[1][0]) * (l2[0][1] - l2[1][1])) * \
+                ((l1[1][1] - l2[1][1]) * (l2[0][0] - l2[1][0]) - (l1[1][0] - l2[1][0]) * (l2[0][1] - l2[1][1]))
+            g.append(ca.atan2(sign1, sign2))
+            
+            # left vehicle body line segment
+            l1 = [
+                [X + self.fl * ca.cos(self.fa + Psi), Y + self.fl * ca.sin(self.fa + Psi)],
+                [X + self.rl * ca.cos(self.ra + Psi), Y + self.rl * ca.sin(self.ra + Psi)],
+            ]
+            sign1 = ((l2[0][1] - l1[1][1]) * (l1[0][0] - l1[1][0]) - (l2[0][0] - l1[1][0]) * (l1[0][1] - l1[1][1])) * \
+                ((l2[1][1] - l1[1][1]) * (l1[0][0] - l1[1][0]) - (l2[1][0] - l1[1][0]) * (l1[0][1] - l1[1][1]))
+            sign2 = ((l1[0][1] - l2[1][1]) * (l2[0][0] - l2[1][0]) - (l1[0][0] - l2[1][0]) * (l2[0][1] - l2[1][1])) * \
+                ((l1[1][1] - l2[1][1]) * (l2[0][0] - l2[1][0]) - (l1[1][0] - l2[1][0]) * (l2[0][1] - l2[1][1]))
+            g.append(ca.atan2(sign1, sign2))
+        return g
+            
+    def getConstraintMin(self):
+        return [- np.pi / 2] * (self.n_obs * 2)
+        
+    def getConstraintMax(self):
+        return [np.pi] * (self.n_obs * 2)
         
     ############################################################
     # Bounds ###################################################
