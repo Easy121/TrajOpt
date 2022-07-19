@@ -3,13 +3,17 @@ Test of greedy algorithm
 * don't consider the traveled distance from start
 * only consider the remaining distance to end
 """
+# TODO Animation
 
 import numpy as np
 import networkx as nx
+import time
+import os
 import heapq
 from typing import Protocol, Dict, List, Iterator, Tuple, TypeVar, Optional
 T = TypeVar('T')
 import matplotlib.pyplot as plt
+from matplotlib.animation import ArtistAnimation
 plt.rcParams.update({
     "font.family": "DeJavu Serif",
     "font.serif": ["Computer Modern Roman"],})
@@ -48,9 +52,19 @@ obs = [(2, 2), (3, 2), (4, 2), (5, 2), (6, 2), (7, 2), (8, 2), (9, 2), (10, 2), 
        (12, 3), (12, 4), (12, 5), (12, 6), (12, 7), (12, 8), (12, 9), (12, 10), (12, 11), (12, 12),
        (11, 12), (10, 12), (9, 12), (8, 12), (7, 12), (6, 12), (5, 12)]
 G.remove_nodes_from(obs)
+# visual 
+vis = True
+im = []
+G_list = list(G)
+node_color = [CL['LBLU']] * len(G_list)
+xy = np.asarray(G)
+fig, ax = plt.subplots(1, 1, figsize=(10, 8), dpi=80)
+plt.tight_layout()
+ax.axis('equal')
 # start and end point
 start = (0, 2)
 goal  = (11, 13)
+node_color[G_list.index(start)] = CL['LRED']
 # search initialization
 frontier = PriorityQueue()
 frontier.put(start, 0)
@@ -60,10 +74,11 @@ came_from[start] = None
 cost_so_far[start] = 0
 # heuristic: Euclidean
 def heuristic(a, b):
-   return np.sqrt((a[0] - b[0])**2 + (a[1] - b[1])**2)
+   return np.sqrt((a[0] - b[0])**2 + (a[1] - b[1])**2)*2
 # search loop
 while not frontier.empty():
     current = frontier.get()
+    node_color[G_list.index(current)] = CL['LRED']
     # early exit
     if current == goal:
         break
@@ -75,6 +90,9 @@ while not frontier.empty():
             priority = new_cost + heuristic(goal, next)  # greedy term (to end)
             frontier.put(next, priority)
             came_from[next] = current
+            # plot
+            node_color[G_list.index(next)] = CL['RED']
+    im.append([ax.scatter(xy[:,0], xy[:, 1], s=30**2, c=node_color, marker='s')])
 # backward
 current = goal
 path = []
@@ -83,6 +101,17 @@ while current != start:
     current = came_from[current]
 path.append(start)
 path.reverse()
+# final plot
+node_color = []
+for x, y in G:
+    if (x,y) in path:
+        node_color.append(CL['BLU'])
+    elif (x,y) in came_from:
+        node_color.append(CL['LRED'])
+    else:
+        node_color.append(CL['LBLU'])
+for i in range(10):
+    im.append([ax.scatter(xy[:,0], xy[:, 1], s=30**2, c=node_color, marker='s')])
 
 
 """ Inspecting """
@@ -91,22 +120,30 @@ path.reverse()
 
 
 """ Plotting """
-# position
-pos = {(x,y):(x,y) for x,y in G.nodes()}  # tuple (x, y) unpacked
-# color
-node_color = []
-for x, y in G.nodes:
-    if (x,y) in path:
-        node_color.append(CL['BLU'])
-    elif (x,y) in came_from:
-        node_color.append(CL['LRED'])
-    else:
-        node_color.append(CL['LBLU'])
-# plot
-nx.draw(G, pos=pos, 
-        node_color=node_color,
-        # node_size=20
-        # with_labels=True,
-        )
-plt.axis('equal')
+ani = ArtistAnimation(fig, im, interval=50, repeat=True, blit=True)
+path_to_save = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'A*.gif')
+ani.save(filename=path_to_save, writer='pillow')
 plt.show()
+
+# * discarded
+# # position
+# pos = {(x,y):(x,y) for x,y in G.nodes()}  # tuple (x, y) unpacked
+# # color
+# node_color = []
+# for x, y in G.nodes:
+#     if (x,y) in path:
+#         node_color.append(CL['BLU'])
+#     elif (x,y) in came_from:
+#         node_color.append(CL['LRED'])
+#     else:
+#         node_color.append(CL['LBLU'])
+# # plot
+# nx.draw(G, pos=pos, 
+#         node_color=node_color,
+#         # node_size=20
+#         # with_labels=True,
+#         )
+# plt.axis('equal')
+# plt.show()
+
+
