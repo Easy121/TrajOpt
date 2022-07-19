@@ -37,10 +37,7 @@ class Parking_Opt:
         self.init = list(np.array(self.model.init + [0.0, 0.0]) / self.model.x_s)
         self.ref = list(np.array(self.model.ref + [0.0, 0.0]) / self.model.x_s)
         
-        """ number of intermediate state """
-        # first calculate the distance, and determine N based on dis
-        dis = np.floor(np.sqrt(np.square(self.model.ref[0]) + np.square(self.model.ref[1])))
-        self.N = np.max([int(dis * 2), 40])
+        self.N = self.model.N
         
         
     def optimize(self):
@@ -139,7 +136,7 @@ class Parking_Opt:
                 lbw.append([-np.inf] * self.nx)
                 ubw.append([np.inf] * self.nx)
                 # * dimension check
-                w0.append(self.model.getStateGuess(k/(self.N-1)))
+                w0.append(self.model.getStateGuess(k))
 
             # Loop over collocation points
             Xk_end = D[0] * Xk
@@ -166,7 +163,7 @@ class Parking_Opt:
             w.append(Xk)
             lbw.append(self.model.getStateMin(k))
             ubw.append(self.model.getStateMax(k))
-            w0.append(self.model.getStateGuess(k/(self.N-1)))
+            w0.append(self.model.getStateGuess(k))
             x_opt.append(Xk * self.model.x_s)
             u_opt.append(Uk * self.model.u_s)
             dx_opt.append(self.model.f_d(Xk, Uk))

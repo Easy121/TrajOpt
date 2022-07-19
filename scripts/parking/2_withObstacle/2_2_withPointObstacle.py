@@ -32,12 +32,17 @@ CL = {'BLU': np.array([0, 114, 189])/255,
 # # 1 straight path TROUBLE
 # init = [0.0, 0.0, 0.0]
 # ref = [30.0, 0.0, 0.0]
-# # obs = [[15.0, 0]]
+# obs = [[15.0, 0]]
 
 # 2 diagonal path SUCCESS
 init = [0.0, 0.0, np.pi/4]
 ref = [8.0, 8.0, np.pi/4]
 obs = [[4, 4]]
+
+# # 2-1 extreme diagonal path TROUBLE
+# init = [0.0, 0.0, np.pi/4]
+# ref = [20.0, 1.0, np.pi/4]
+# obs = [[10, 0.5]]
 
 # # 3 diamond
 # init = [0.0, 0.0, 0.0]

@@ -28,6 +28,11 @@ class Kine3dof:
         # a, ddelta
         self.nu = 2
         
+        """ number of intermediate state """
+        # first calculate the distance, and determine N based on dis
+        dis = np.floor(np.sqrt(np.square(self.ref[0]) + np.square(self.ref[1])))
+        self.N = np.max([int(dis * 2), 40])
+        
         ############################################################
         # Model Definition #########################################
         ############################################################
@@ -102,9 +107,9 @@ class Kine3dof:
         # * orient as soon as possible
         # L = 10 * (a * a + v * v * dPsi * dPsi) + \
         #     10 * delta * delta
-        L = 10 * (a * a + v * v * dPsi * dPsi) + \
-            10 * delta * delta + \
-            10 * (Psi - self.ref[2]) * (Psi - self.ref[2]) 
+        L = 10 * (a**2 + v**2 * dPsi**2) + \
+            10 * delta**2 + \
+            10 * (Psi - self.ref[2])**2
 
         # Continuous time dynamics
         self.f = ca.Function('f', [x, u], [dx, L], ['x', 'u'], ['dx', 'L'])
@@ -137,14 +142,14 @@ class Kine3dof:
             # front
             Xf = X + self.fc * ca.cos(Psi)
             Yf = Y + self.fc * ca.sin(Psi)
-            g.append((Xf - P[0]) * (Xf - P[0]) + (Yf - P[1]) * (Yf - P[1]))
+            g.append((Xf - P[0])**2 + (Yf - P[1])**2)
             
             # rear
             Xr = X + self.rc * ca.cos(Psi)
             Yr = Y + self.rc * ca.sin(Psi)
-            g.append((Xr - P[0]) * (Xr - P[0]) + (Yr - P[1]) * (Yr - P[1]))
+            g.append((Xr - P[0])**2 + (Yr - P[1])**2)
         
-            # g.append((X - P[0]) * (X - P[0]) + (Y - P[1]) * (Y - P[1]))
+            # g.append((X - P[0])**2 + (Y - P[1])**2
             
         return g
             
