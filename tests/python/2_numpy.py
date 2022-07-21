@@ -43,3 +43,9 @@ print('')
 x = [1]
 x = x + [1, 2]
 print(x)
+
+print('')
+# print(np.linalg.norm((2, 2)-(1, 2)))
+x = [(1, 2), (2, 2) ,(3, 2)]
+i = 0
+y = {x_element:i for x_element in x}

@@ -3,17 +3,21 @@ Test of greedy algorithm
 * don't consider the traveled distance from start
 * only consider the remaining distance to end
 """
-# TODO Animation
+# DONE Animation
+# TODO non-repeating priority queue
+
 
 import numpy as np
 import networkx as nx
 import time
+import cProfile as profile
+import pstats
 import os
 import heapq
 from typing import Protocol, Dict, List, Iterator, Tuple, TypeVar, Optional
 T = TypeVar('T')
 import matplotlib.pyplot as plt
-from matplotlib.animation import ArtistAnimation
+import matplotlib.animation as animation
 plt.rcParams.update({
     "font.family": "DeJavu Serif",
     "font.serif": ["Computer Modern Roman"],})
@@ -46,25 +50,32 @@ class PriorityQueue:
 # graph generation
 d = 1
 G = nx.grid_2d_graph(np.arange(0, 15, d), np.arange(0, 15, d))
+
 # setting obstacles
 # TODO automatic setting
 obs = [(2, 2), (3, 2), (4, 2), (5, 2), (6, 2), (7, 2), (8, 2), (9, 2), (10, 2), (11, 2), (12, 2),
        (12, 3), (12, 4), (12, 5), (12, 6), (12, 7), (12, 8), (12, 9), (12, 10), (12, 11), (12, 12),
        (11, 12), (10, 12), (9, 12), (8, 12), (7, 12), (6, 12), (5, 12)]
 G.remove_nodes_from(obs)
-# visual 
-vis = True
-im = []
-G_list = list(G)
-node_color = [CL['LBLU']] * len(G_list)
-xy = np.asarray(G)
-fig, ax = plt.subplots(1, 1, figsize=(10, 8), dpi=80)
-plt.tight_layout()
-ax.axis('equal')
+
 # start and end point
 start = (0, 2)
 goal  = (11, 13)
-node_color[G_list.index(start)] = CL['LRED']
+
+# visual 
+im = []
+G_list = list(G)
+# creat node index dictionary
+index = range(len(G_list))
+node2index = dict(zip(G_list, index))
+node_color = [CL['LBLU']] * len(G_list)
+node_color[node2index[start]] = CL['LRED']
+# fig and coordinate
+xy = np.array(G)
+fig, ax = plt.subplots(1, 1, figsize=(10, 8), dpi=80)
+plt.tight_layout()
+ax.axis('equal')
+
 # search initialization
 frontier = PriorityQueue()
 frontier.put(start, 0)
@@ -72,16 +83,23 @@ came_from = dict()  # path A->B is stored as came_from[B] == A
 cost_so_far = dict()
 came_from[start] = None
 cost_so_far[start] = 0
+
 # heuristic: Euclidean
 def heuristic(a, b):
    return np.sqrt((a[0] - b[0])**2 + (a[1] - b[1])**2)*2
+
 # search loop
+prof = profile.Profile()
+prof.enable()
+
 while not frontier.empty():
     current = frontier.get()
-    node_color[G_list.index(current)] = CL['LRED']
+    node_color[node2index[current]] = CL['LRED']
+    
     # early exit
     if current == goal:
         break
+    
     # expand the frontier
     for next in G.neighbors(current):
         new_cost = cost_so_far[current] + d  # no uniform cost here (from start)
@@ -90,9 +108,14 @@ while not frontier.empty():
             priority = new_cost + heuristic(goal, next)  # greedy term (to end)
             frontier.put(next, priority)
             came_from[next] = current
-            # plot
-            node_color[G_list.index(next)] = CL['RED']
-    im.append([ax.scatter(xy[:,0], xy[:, 1], s=30**2, c=node_color, marker='s')])
+    
+    # # plot
+    # for priority_point, frontier_point in frontier.elements:
+    #     node_color[node2index[frontier_point]] = CL['RED']
+    # im.append([ax.scatter(xy[:,0], xy[:, 1], s=30**2, c=node_color, marker='s')])
+
+prof.disable()
+
 # backward
 current = goal
 path = []
@@ -101,16 +124,11 @@ while current != start:
     current = came_from[current]
 path.append(start)
 path.reverse()
+
 # final plot
-node_color = []
-for x, y in G:
-    if (x,y) in path:
-        node_color.append(CL['BLU'])
-    elif (x,y) in came_from:
-        node_color.append(CL['LRED'])
-    else:
-        node_color.append(CL['LBLU'])
-for i in range(10):
+for path_point in path:
+    node_color[node2index[path_point]] = CL['BLU']
+for i in range(20):
     im.append([ax.scatter(xy[:,0], xy[:, 1], s=30**2, c=node_color, marker='s')])
 
 
@@ -118,12 +136,60 @@ for i in range(10):
 # print
 # print(G.nodes)
 
+# print profiling output
+stats = pstats.Stats(prof).strip_dirs().sort_stats('cumtime')
+# stats.print_stats(10) # top 10 rows
+
+def f8(x):
+    return "%8.6f" % x
+
+def func_std_string(func_name): # match what old profile produced
+    if func_name[:2] == ('~', 0):
+        # special case for built-in functions
+        name = func_name[2]
+        if name.startswith('<') and name.endswith('>'):
+            return '{%s}' % name[1:-1]
+        else:
+            return name
+    else:
+        return "%s:%d(%s)" % func_name
+
+print('')
+indent = ' ' * 8
+print(indent, stats.total_calls, "function calls", end=' ')
+if stats.total_calls != stats.prim_calls:
+    print("(%d primitive calls)" % stats.prim_calls, end=' ')
+print("in %.6f seconds" % stats.total_tt)
+print('')
+width, list = stats.get_print_list([10])
+if list:
+    print('   ncalls  tottime  percall  cumtime  percall', end=' ')
+    print('filename:lineno(function)')
+    for func in list:
+        cc, nc, tt, ct, callers = stats.stats[func]
+        c = str(nc)
+        if nc != cc:
+            c = c + '/' + str(cc)
+        print(c.rjust(9), end=' ')
+        print(f8(tt), end=' ')
+        if nc == 0:
+            print(' '*8, end=' ')
+        else:
+            print(f8(tt/nc), end=' ')
+        print(f8(ct), end=' ')
+        if cc == 0:
+            print(' '*8, end=' ')
+        else:
+            print(f8(ct/cc), end=' ')
+        print(func_std_string(func))
+print('')
+
 
 """ Plotting """
-ani = ArtistAnimation(fig, im, interval=50, repeat=True, blit=True)
-path_to_save = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'A*.gif')
-ani.save(filename=path_to_save, writer='pillow')
-plt.show()
+# ani = animation.ArtistAnimation(fig, im, interval=50, repeat=True, blit=True)
+# path_to_save = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'A*.gif')
+# ani.save(filename=path_to_save, writer='pillow')
+# plt.show()
 
 # * discarded
 # # position
