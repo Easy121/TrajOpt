@@ -3,8 +3,9 @@ Test of A* algorithm
 * consider heuristic
 """
 # DONE Animation
-# TODO non-repeating priority queue
-# TODO animation simplication
+# DONE non-repeating priority queue
+# DONE animation simplication
+# DONE test heapdict: very slow
 
 
 from opt.stats import *

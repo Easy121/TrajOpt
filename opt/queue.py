@@ -1,6 +1,4 @@
 import heapq
-from typing import TypeVar
-T = TypeVar('T')
 
 
 REMOVED = (-10000, -10000)  # placeholder for a removed task
@@ -14,7 +12,7 @@ class PriorityQueue:
     def empty(self) -> bool:
         return not self.elements
     
-    def put(self, item: T, priority: float):
+    def put(self, item, priority):
         if item not in self.sheet:
             entry = [priority, item]
             self.sheet[item] = entry
@@ -27,7 +25,7 @@ class PriorityQueue:
             self.sheet[item] = entry
             heapq.heappush(self.elements, entry)
     
-    def get(self) -> T:
+    def get(self):
         # remove the lazy terms
         while self.elements:
             item_poped = heapq.heappop(self.elements)[1]
