@@ -49,3 +49,8 @@ print('')
 x = [(1, 2), (2, 2) ,(3, 2)]
 i = 0
 y = {x_element:i for x_element in x}
+
+print('')
+x = []
+x.append([1, (1, 2)])
+print(x)
