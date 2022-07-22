@@ -2,6 +2,7 @@
 Test of breathfirst algorithm
 """
 
+
 import numpy as np
 import networkx as nx
 import queue

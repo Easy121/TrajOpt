@@ -4,6 +4,7 @@ Test of greedy algorithm
 * only consider the remaining distance to end
 """
 
+
 import numpy as np
 import networkx as nx
 import heapq

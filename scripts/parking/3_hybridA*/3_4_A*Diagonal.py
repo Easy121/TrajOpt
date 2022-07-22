@@ -6,7 +6,7 @@ Test of A* algorithm
 # DONE non-repeating priority queue
 # DONE animation simplication
 # DONE test heapdict: very slow
-# TODO diagonal A*
+# DONE A* diagonal
 
 
 from opt.stats import *
@@ -157,8 +157,8 @@ for color_change in color_change_all:
 ani = animation.ArtistAnimation(fig, im, interval=50, repeat=True, blit=True)
 
 # save
-# path_to_save = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'A*.gif')
-# ani.save(filename=path_to_save, writer='pillow')
+path_to_save = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'A* Diagonal.gif')
+ani.save(filename=path_to_save, writer='pillow')
 
 ###################################################
 prof.disable() ####################################

@@ -6,7 +6,7 @@ Test of A* algorithm
 # DONE non-repeating priority queue
 # DONE animation simplication
 # DONE test heapdict: very slow
-# TODO diagonal A*
+# TODO A* diagonal
 
 
 from opt.stats import *
