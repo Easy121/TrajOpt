@@ -54,3 +54,14 @@ print('')
 x = []
 x.append([1, (1, 2)])
 print(x)
+
+print('')
+d = 0.1
+all_nodes = []
+for x in np.arange(0, 1, d):
+    all_nodes.append((x, x))
+print(all_nodes)
+print(type(all_nodes[1][0]))
+test = (d*3, d*3)
+print(type(test[0]))
+print(test == all_nodes[3])

@@ -12,6 +12,7 @@ Test of A* algorithm
 from opt.stats import *
 profprinter = ProfPrinter()
 from opt.search.queue import *
+from opt.search.grid import *
 
 
 import numpy as np
@@ -42,15 +43,12 @@ prof.enable() #####################################
 ###################################################
 
 # graph generation
-d = 1
-G = nx.grid_2d_graph(np.arange(0, 15, d), np.arange(0, 15, d))
-
-# setting obstacles
 # TODO automatic setting
-obs = [(2, 2), (3, 2), (4, 2), (5, 2), (6, 2), (7, 2), (8, 2), (9, 2), (10, 2), (11, 2), (12, 2),
+obs = {(2, 2), (3, 2), (4, 2), (5, 2), (6, 2), (7, 2), (8, 2), (9, 2), (10, 2), (11, 2), (12, 2),
        (12, 3), (12, 4), (12, 5), (12, 6), (12, 7), (12, 8), (12, 9), (12, 10), (12, 11), (12, 12),
-       (11, 12), (10, 12), (9, 12), (8, 12), (7, 12), (6, 12), (5, 12)]
-G.remove_nodes_from(obs)
+       (11, 12), (10, 12), (9, 12), (8, 12), (7, 12), (6, 12), (5, 12)}
+# G = SquareGrid([0, 15], [0, 15], 1, obs)
+G = SquareGridDiagonal([0, 15], [0, 15], 1, obs)
 
 # start and end point
 start = (0, 2)
@@ -58,8 +56,9 @@ goal  = (11, 13)
 
 # visual 
 color_change_all = []
-G_list = list(G)
-xy = np.array(G)
+G_set = G.nodes
+G_list = list(G_set)
+xy = np.array(G_list)
 # creat node index dictionary
 index = range(len(G_list))
 node2index = dict(zip(G_list, index))
@@ -76,7 +75,7 @@ cost_so_far[start] = 0
 
 # heuristic: Euclidean
 def heuristic(a, b):
-   return np.sqrt((a[0] - b[0])**2 + (a[1] - b[1])**2)*3
+   return np.sqrt((a[0] - b[0])**2 + (a[1] - b[1])**2)*2
 
 ###################################################
 prof.disable() ####################################
@@ -101,7 +100,7 @@ while not frontier.empty():
     
     # expand the frontier
     for next in G.neighbors(current):
-        new_cost = cost_so_far[current] + d  # uniform cost (from start)
+        new_cost = cost_so_far[current] + G.getCost(current, next)  # uniform cost (from start)
         if next not in cost_so_far or new_cost < cost_so_far[next]:
             cost_so_far[next] = new_cost
             priority = new_cost + heuristic(goal, next)  # greedy term (to end) 
