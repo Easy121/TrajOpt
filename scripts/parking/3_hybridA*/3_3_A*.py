@@ -114,7 +114,6 @@ while not frontier.empty():
     color_change_all.append(color_change)
 
 # backward
-current = goal
 path = []
 while current != start:
     path.append(current)
@@ -158,7 +157,7 @@ for color_change in color_change_all:
 ani = animation.ArtistAnimation(fig, im, interval=50, repeat=True, blit=True)
 
 # save
-# path_to_save = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'A*.gif')
+# path_to_save = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'fig/A*.gif')
 # ani.save(filename=path_to_save, writer='pillow')
 
 ###################################################

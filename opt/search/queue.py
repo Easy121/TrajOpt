@@ -17,6 +17,7 @@ class PriorityQueue:
             entry = [priority, item]
             self.sheet[item] = entry
             heapq.heappush(self.elements, entry)
+            return True
         elif self.sheet[item][0] > priority:
             # lazy deletiion of the former one
             former = self.sheet.pop(item)
@@ -24,6 +25,9 @@ class PriorityQueue:
             entry = [priority, item]
             self.sheet[item] = entry
             heapq.heappush(self.elements, entry)
+            return True
+        else:
+            return False
     
     def get(self):
         # remove the lazy terms
@@ -32,4 +36,4 @@ class PriorityQueue:
             if item_poped is not REMOVED:
                 del self.sheet[item_poped]
                 return item_poped
-        raise KeyError('pop from an empty priority queue')
+        return None

@@ -65,3 +65,16 @@ print(type(all_nodes[1][0]))
 test = (d*3, d*3)
 print(type(test[0]))
 print(test == all_nodes[3])
+
+print('')
+y = np.array([1, 2])
+print(np.append(np.array([0, 0]), y))
+
+print('')
+print(0 % 360)
+
+print('')
+for i in range(20):
+    if i == 5:
+        break
+print(i)
