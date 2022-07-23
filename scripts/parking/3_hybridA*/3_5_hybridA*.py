@@ -2,7 +2,8 @@
 Test of Hybrid A* algorithm
 * consider multiple heuristic
 """
-# TODO Visualization of continuous points
+# DONE Visualization of continuous points
+# TODO Summerize the bug
 # TODO Redd-sheep curve heuristic
 
 
@@ -71,6 +72,8 @@ node_color[node2index[start]] = CL['LRED']
 frontier = PriorityQueue()
 frontier.put(start, 0)
 came_from = dict()  # path A->B is stored as came_from[B] == A
+came_from_state = dict()  # record the state relationship
+updated_from_state = dict()  # record the state relationship
 cost_so_far = dict()
 came_from[start] = None
 cost_so_far[start] = 0
@@ -120,36 +123,47 @@ while not frontier.empty():
                 break
         if found:
             if next != current:
-                new_cost = cost_so_far[current] + d  # uniform cost (from start)
+                new_cost = cost_so_far[current] + G.getCost(current, next)  # uniform cost (from start)
                 if next not in cost_so_far or new_cost <= cost_so_far[next]:
                     priority = new_cost + aStarCost(next_state, next, goal, G)  # greedy term (to end) 
                     if frontier.put(next, priority):
                         cost_so_far[next] = new_cost
                         state[next] = next_state
                         came_from[next] = current
+                        came_from_state[str(next_state)] = current_state
                         color_change.append([node2index[next], CL['RED']])
             else:
                 new_cost = cost_so_far[current]  # uniform cost (from start)
-                priority = new_cost + aStarCost(next_state, next, goal, G)  # greedy term (to end) 
+                priority = new_cost + d + aStarCost(next_state, next, goal, G)  # greedy term (to end) 
                 if frontier.put(next, priority):
                     cost_so_far[next] = new_cost
                     state[next] = next_state
                     # came_from[next] = current  # if not commented, the bug of self came from self arises
+                    updated_from_state[str(next_state)] = current_state  # switched to updated_from
                     color_change.append([node2index[next], CL['RED']])
             
     # vis
     color_change_all.append(color_change)
 
-# backward
+# backward: path
 path = []
-path_state = []
 while current != start:
     path.append(current)
-    path_state.append(state[current])
     current = came_from[current]
 path.append(start)
-path_state.append(state[start])
-path.reverse()
+# backward: state
+path_state = [current_state]
+while True:
+    if str(current_state) in updated_from_state:
+        next_state = updated_from_state[str(current_state)]
+        path_state.append(next_state)
+        current_state = next_state
+    elif str(current_state) in came_from_state:
+        next_state = came_from_state[str(current_state)]
+        path_state.append(next_state)
+        current_state = next_state
+    else:
+        break
 
 ###################################################
 prof.disable() ####################################
